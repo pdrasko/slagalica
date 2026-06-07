@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Association – Word Puzzle Game</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0d0d1a;
+      color: #e0e0ff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ─── SCREENS ─────────────────────────────────────────── */
+    .screen { display: none; flex-direction: column; align-items: center; padding: 24px 16px; gap: 28px; }
+    .screen.active { display: flex; }
+
+    /* ─── START SCREEN ────────────────────────────────────── */
+    #start-screen { text-align: center; max-width: 480px; width: 100%; }
+
+    .logo {
+      font-size: clamp(2.4rem, 8vw, 3.6rem);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 50%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline { color: #64748b; font-size: 1rem; margin-top: -8px; }
+
+    .section-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #475569;
+      margin-bottom: 10px;
+    }
+
+    .toggle-row { display: flex; gap: 12px; justify-content: center; }
+
+    .toggle-btn {
+      padding: 12px 28px;
+      border-radius: 10px;
+      border: 2px solid #1e293b;
+      background: #131928;
+      color: #94a3b8;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .toggle-btn:hover { border-color: #334155; color: #e0e0ff; }
+    .toggle-btn.on { border-color: #7c3aed; background: #1e1040; color: #c4b5fd; box-shadow: 0 0 16px rgba(124,58,237,.25); }
+
+    .start-btn {
+      padding: 15px 52px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s;
+      letter-spacing: 0.04em;
+    }
+    .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,.4); }
+
+    .rules {
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 0.85rem;
+      color: #64748b;
+      line-height: 1.75;
+      text-align: left;
+    }
+    .rules strong { color: #94a3b8; }
+
+    /* ─── GAME SCREEN ─────────────────────────────────────── */
+    #game-screen { width: 100%; max-width: 560px; }
+
+    /* Scoreboard */
+    .scoreboard { display: flex; gap: 16px; justify-content: center; width: 100%; }
+
+    .score-card {
+      flex: 1;
+      max-width: 160px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 2px solid #1e293b;
+      background: #111827;
+      text-align: center;
+      transition: all 0.25s;
+    }
+    .score-card.active {
+      border-color: #7c3aed;
+      background: #140d2e;
+      box-shadow: 0 0 20px rgba(124,58,237,.3);
+    }
+    .score-card .name { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; }
+    .score-card.active .name { color: #a78bfa; }
+    .score-card .pts { font-size: 2rem; font-weight: 800; color: #a78bfa; line-height: 1.1; }
+    .score-card .turn-tag { font-size: 0.7rem; color: #7c3aed; margin-top: 4px; height: 14px; }
+
+    /* Puzzle counter */
+    .puzzle-counter { font-size: 0.8rem; color: #334155; letter-spacing: 0.06em; }
+
+    /* ─── GRID ────────────────────────────────────────────── */
+    .grid-wrap { position: relative; }
+
+    .puzzle-grid {
+      display: grid;
+      grid-template-columns: repeat(5, var(--cell));
+      grid-template-rows:    repeat(5, var(--cell));
+      gap: var(--gap);
+      --cell: 88px;
+      --gap: 8px;
+    }
+
+    @media (max-width: 520px) {
+      .puzzle-grid { --cell: 64px; --gap: 6px; }
+    }
+    @media (max-width: 380px) {
+      .puzzle-grid { --cell: 54px; --gap: 5px; }
+    }
+
+    .block {
+      width: var(--cell);
+      height: var(--cell);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 2px solid #1e293b;
+      background: #111827;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s, background 0.15s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .block:hover {
+      transform: scale(1.06);
+      border-color: #7c3aed;
+      background: #1a0f3a;
+      box-shadow: 0 0 18px rgba(124,58,237,.35);
+    }
+
+    .block .q-mark {
+      font-size: 1.8rem;
+      opacity: 0.25;
+      line-height: 1;
+    }
+    @media (max-width: 520px) { .block .q-mark { font-size: 1.3rem; } }
+
+    .block .pt-tag {
+      font-size: 0.65rem;
+      color: #334155;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    /* Revealed states */
+    .block.revealed { cursor: default; }
+    .block.revealed:hover { transform: none; }
+
+    .block.rev-corner { background: #0f1f35; border-color: #2563eb; }
+    .block.rev-arm    { background: #0f2a1f; border-color: #059669; }
+    .block.rev-center { background: #1e0f45; border-color: #7c3aed; box-shadow: 0 0 22px rgba(124,58,237,.35); }
+
+    .block .rev-word {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      text-align: center;
+      padding: 0 4px;
+      line-height: 1.2;
+    }
+    @media (max-width: 520px) { .block .rev-word { font-size: 0.58rem; } }
+
+    .block.rev-corner .rev-word { color: #60a5fa; }
+    .block.rev-arm    .rev-word { color: #34d399; }
+    .block.rev-center .rev-word { color: #c4b5fd; }
+
+    .block .rev-pts {
+      font-size: 0.62rem;
+      margin-top: 3px;
+      opacity: 0.7;
+    }
+
+    /* ─── MODAL ───────────────────────────────────────────── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      backdrop-filter: blur(6px);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .overlay.open { display: flex; }
+
+    .modal {
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 20px;
+      padding: 36px 32px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .modal-who {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #7c3aed;
+      margin-bottom: 6px;
+    }
+
+    .modal-hint-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #475569;
+      margin-bottom: 12px;
+    }
+
+    .modal-hint {
+      font-size: 1.1rem;
+      color: #e0e0ff;
+      line-height: 1.55;
+      margin-bottom: 10px;
+    }
+
+    .modal-pts-tag {
+      font-size: 0.8rem;
+      color: #a78bfa;
+      margin-bottom: 24px;
+    }
+
+    .modal input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 10px;
+      border: 2px solid #1e293b;
+      background: #0d0d1a;
+      color: #e0e0ff;
+      font-size: 1rem;
+      text-align: center;
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+    .modal input:focus { border-color: #7c3aed; }
+
+    .modal-btns { display: flex; gap: 10px; }
+
+    .btn-skip {
+      padding: 13px 20px;
+      border-radius: 10px;
+      border: 2px solid #1e293b;
+      background: transparent;
+      color: #475569;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-skip:hover { border-color: #334155; color: #94a3b8; }
+
+    .btn-go {
+      flex: 1;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-go:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(124,58,237,.4); }
+
+    /* ─── FLASH RESULT ────────────────────────────────────── */
+    #flash {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    #flash.show { display: flex; }
+
+    .flash-badge {
+      font-size: 2.6rem;
+      font-weight: 900;
+      padding: 18px 40px;
+      border-radius: 18px;
+      animation: pop 0.45s cubic-bezier(.34,1.56,.64,1);
+    }
+    .flash-badge.ok  { background: rgba(52,211,153,.15); border: 3px solid #34d399; color: #34d399; }
+    .flash-badge.bad { background: rgba(239,68,68,.15);  border: 3px solid #ef4444;  color: #ef4444; }
+
+    @keyframes pop {
+      from { transform: scale(.4); opacity: 0; }
+      to   { transform: scale(1);  opacity: 1; }
+    }
+
+    /* ─── GAME OVER SCREEN ────────────────────────────────── */
+    #gameover-screen { text-align: center; max-width: 480px; width: 100%; }
+
+    .go-title {
+      font-size: clamp(2rem, 7vw, 3rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .go-msg { color: #64748b; font-size: 0.95rem; }
+
+    .go-cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+
+    .go-card {
+      padding: 24px 28px;
+      border-radius: 14px;
+      border: 2px solid #1e293b;
+      background: #111827;
+      min-width: 140px;
+    }
+    .go-card.winner { border-color: #f59e0b; background: #1a1203; box-shadow: 0 0 30px rgba(245,158,11,.25); }
+
+    .go-card .win-badge { font-size: 0.72rem; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .go-card .go-name   { font-size: 0.85rem; color: #64748b; margin-bottom: 6px; }
+    .go-card .go-pts    { font-size: 2.6rem; font-weight: 800; color: #e0e0ff; }
+
+    .again-btn {
+      padding: 15px 52px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .again-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,.4); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ START SCREEN ═══════════════════════ -->
+<div id="start-screen" class="screen active">
+  <div>
+    <div class="logo">ASSOCIATION</div>
+    <div class="tagline">Find the hidden connections between words</div>
+  </div>
+
+  <div>
+    <div class="section-label">Number of players</div>
+    <div class="toggle-row">
+      <button class="toggle-btn on" id="btn1" onclick="setPlayers(1)">1 Player</button>
+      <button class="toggle-btn"   id="btn2" onclick="setPlayers(2)">2 Players</button>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">Start Game</button>
+
+  <div class="rules">
+    <strong>How to play</strong><br>
+    Nine blocks form an X shape. Click any unrevealed block to read a clue, then type the hidden word.<br><br>
+    A correct answer earns points and passes the turn. A wrong answer <em>ends the game</em>.<br><br>
+    <strong>Points:</strong> Center word = 5 pts &nbsp;·&nbsp; Arm words = 3 pts &nbsp;·&nbsp; Corner words = 1 pt<br><br>
+    Every word is linked to its X-neighbours by a shared theme.
+  </div>
+</div>
+
+<!-- ═══════════════════════ GAME SCREEN ════════════════════════ -->
+<div id="game-screen" class="screen">
+  <div class="scoreboard" id="scoreboard"></div>
+  <div class="puzzle-grid" id="grid"></div>
+  <div class="puzzle-counter" id="counter"></div>
+</div>
+
+<!-- ═══════════════════════ GAME OVER SCREEN ══════════════════ -->
+<div id="gameover-screen" class="screen">
+  <div class="go-title" id="go-title"></div>
+  <div class="go-cards" id="go-cards"></div>
+  <div class="go-msg"   id="go-msg"></div>
+  <button class="again-btn" onclick="backToStart()">Play Again</button>
+</div>
+
+<!-- ═══════════════════════ GUESS MODAL ════════════════════════ -->
+<div class="overlay" id="modal">
+  <div class="modal">
+    <div class="modal-who"   id="m-who"></div>
+    <div class="modal-hint-label">Clue</div>
+    <div class="modal-hint"  id="m-hint"></div>
+    <div class="modal-pts-tag" id="m-pts"></div>
+    <input type="text" id="m-input" placeholder="Type your answer…" maxlength="40"
+           autocomplete="off" autocorrect="off" spellcheck="false"
+           onkeydown="if(event.key==='Enter')submitGuess()">
+    <div class="modal-btns">
+      <button class="btn-skip" onclick="closeModal()">Cancel</button>
+      <button class="btn-go"   onclick="submitGuess()">Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ FLASH ══════════════════════════════ -->
+<div id="flash">
+  <div class="flash-badge" id="flash-badge"></div>
+</div>
+
+<script>
+/* ─────────────────────────── PUZZLE DATA ─────────────────────────── */
+/*
+  Layout (row, col) on a 5×5 grid — X pattern:
+    (0,0)       (0,4)
+      (1,1)   (1,3)
+          (2,2)
+      (3,1)   (3,3)
+    (4,0)       (4,4)
+
+  Neighbour pairs (share an edge in the X skeleton):
+    corner–arm: (0,0)↔(1,1)  (0,4)↔(1,3)  (4,0)↔(3,1)  (4,4)↔(3,3)
+    arm–center: (1,1)↔(2,2)  (1,3)↔(2,2)  (3,1)↔(2,2)  (3,3)↔(2,2)
+
+  Every word must share an association with each of its X-neighbours.
+*/
+const PUZZLES = [
+  {
+    title: 'Music World',
+    blocks: [
+      { pos:[0,0], type:'corner', pts:1, word:'TRUMPET',     alts:[],                hint:'Miles Davis played this gleaming brass wind instrument' },
+      { pos:[0,4], type:'corner', pts:1, word:'GUITAR',      alts:[],                hint:'Six-stringed instrument strummed or picked by rock stars' },
+      { pos:[1,1], type:'arm',    pts:3, word:'JAZZ',        alts:[],                hint:'Improvisational genre born in the streets of New Orleans' },
+      { pos:[1,3], type:'arm',    pts:3, word:'ROCK',        alts:['ROCK MUSIC'],    hint:'Elvis, Beatles, and Led Zeppelin defined this electrifying genre' },
+      { pos:[2,2], type:'center', pts:5, word:'MUSIC',       alts:[],                hint:'The universal art of arranging sound in time' },
+      { pos:[3,1], type:'arm',    pts:3, word:'POP',         alts:['POP MUSIC'],     hint:'Radio-friendly, chart-topping mainstream genre' },
+      { pos:[3,3], type:'arm',    pts:3, word:'CLASSICAL',   alts:['CLASSICAL MUSIC'],hint:'Mozart, Beethoven, and Bach composed in this timeless genre' },
+      { pos:[4,0], type:'corner', pts:1, word:'STAGE',       alts:[],                hint:'Elevated platform where performers appear before an audience' },
+      { pos:[4,4], type:'corner', pts:1, word:'ORCHESTRA',   alts:[],                hint:'Large ensemble of strings, wind, and percussion instruments' },
+    ]
+  },
+  {
+    title: 'Ocean Deep',
+    blocks: [
+      { pos:[0,0], type:'corner', pts:1, word:'SURF',        alts:['SURFING'],       hint:'Ride a board across the face of a breaking wave' },
+      { pos:[0,4], type:'corner', pts:1, word:'SHARK',       alts:[],                hint:'Apex predator with rows of razor-sharp teeth' },
+      { pos:[1,1], type:'arm',    pts:3, word:'WAVE',        alts:['WAVES'],         hint:'Rolling swell of water moving toward the shore' },
+      { pos:[1,3], type:'arm',    pts:3, word:'FISH',        alts:[],                hint:'Gilled vertebrate that breathes and lives underwater' },
+      { pos:[2,2], type:'center', pts:5, word:'OCEAN',       alts:[],                hint:'Vast body of saltwater covering over 70% of Earth' },
+      { pos:[3,1], type:'arm',    pts:3, word:'CURRENT',     alts:['CURRENTS'],      hint:'Steady, flowing stream of water within the sea' },
+      { pos:[3,3], type:'arm',    pts:3, word:'DEPTH',       alts:[],                hint:'The measurement from surface to the bottom of the sea' },
+      { pos:[4,0], type:'corner', pts:1, word:'TIDE',        alts:['TIDES'],         hint:'The daily rise and fall of sea level driven by the moon' },
+      { pos:[4,4], type:'corner', pts:1, word:'ABYSS',       alts:[],                hint:'The deepest, darkest trench of the ocean floor' },
+    ]
+  },
+  {
+    title: 'Fire & Ash',
+    blocks: [
+      { pos:[0,0], type:'corner', pts:1, word:'CANDLE',      alts:['CANDLES'],       hint:'A wax cylinder with a wick you light for soft illumination' },
+      { pos:[0,4], type:'corner', pts:1, word:'OVEN',        alts:[],                hint:'Kitchen appliance that bakes and roasts using intense heat' },
+      { pos:[1,1], type:'arm',    pts:3, word:'FLAME',       alts:['FLAMES'],        hint:'Bright, dancing tongue of burning gas and incandescent particles' },
+      { pos:[1,3], type:'arm',    pts:3, word:'HEAT',        alts:[],                hint:'Thermal energy that raises temperature and can burn' },
+      { pos:[2,2], type:'center', pts:5, word:'FIRE',        alts:[],                hint:'Rapid oxidation that releases light, heat, and flame' },
+      { pos:[3,1], type:'arm',    pts:3, word:'ASH',         alts:[],                hint:'Powdery grey residue left behind after something has burned' },
+      { pos:[3,3], type:'arm',    pts:3, word:'SMOKE',       alts:[],                hint:'Visible aerosol of particles rising from combustion' },
+      { pos:[4,0], type:'corner', pts:1, word:'CHARCOAL',    alts:[],                hint:'Black carbon fuel made by charring wood, used to grill food' },
+      { pos:[4,4], type:'corner', pts:1, word:'CHIMNEY',     alts:[],                hint:'Vertical shaft that carries smoke safely out of a building' },
+    ]
+  },
+  {
+    title: 'Garden of Life',
+    blocks: [
+      { pos:[0,0], type:'corner', pts:1, word:'ROSE',        alts:['ROSES'],         hint:'Thorny flowering plant whose bloom is a symbol of love' },
+      { pos:[0,4], type:'corner', pts:1, word:'OAK',         alts:['OAK TREE'],      hint:'Mighty long-lived tree famous for producing acorns' },
+      { pos:[1,1], type:'arm',    pts:3, word:'FLOWER',      alts:['FLOWERS'],       hint:'Colourful blooming structure that attracts pollinators' },
+      { pos:[1,3], type:'arm',    pts:3, word:'TREE',        alts:['TREES'],         hint:'Tall woody perennial plant with trunk and spreading branches' },
+      { pos:[2,2], type:'center', pts:5, word:'GARDEN',      alts:[],                hint:'Cultivated outdoor space lovingly tended for plants and flowers' },
+      { pos:[3,1], type:'arm',    pts:3, word:'RAIN',        alts:[],                hint:'Water droplets falling from clouds that nourish the earth' },
+      { pos:[3,3], type:'arm',    pts:3, word:'BEE',         alts:['BEES'],          hint:'Fuzzy striped insect that pollinates plants and makes honey' },
+      { pos:[4,0], type:'corner', pts:1, word:'PUDDLE',      alts:['PUDDLES'],       hint:'Small shallow pool of water that forms after rainfall' },
+      { pos:[4,4], type:'corner', pts:1, word:'HONEY',       alts:[],                hint:'Sweet golden liquid produced by bees from flower nectar' },
+    ]
+  },
+  {
+    title: 'Outer Space',
+    blocks: [
+      { pos:[0,0], type:'corner', pts:1, word:'CONSTELLATION', alts:[], hint:'Named pattern of stars visible from Earth, such as Orion' },
+      { pos:[0,4], type:'corner', pts:1, word:'ORBIT',       alts:['ORBITS'],        hint:'Curved path one body follows around another in space' },
+      { pos:[1,1], type:'arm',    pts:3, word:'STAR',        alts:['STARS'],         hint:'Colossal ball of plasma that generates its own light and heat' },
+      { pos:[1,3], type:'arm',    pts:3, word:'PLANET',      alts:['PLANETS'],       hint:'Large spherical body that orbits a star and clears its path' },
+      { pos:[2,2], type:'center', pts:5, word:'SPACE',       alts:['OUTER SPACE'],   hint:'The vast expanse stretching beyond Earth\'s atmosphere' },
+      { pos:[3,1], type:'arm',    pts:3, word:'ROCKET',      alts:['ROCKETS'],       hint:'Vehicle propelled by burning fuel to escape gravity' },
+      { pos:[3,3], type:'arm',    pts:3, word:'GRAVITY',     alts:[],                hint:'Invisible force that pulls masses toward each other across the cosmos' },
+      { pos:[4,0], type:'corner', pts:1, word:'ASTRONAUT',   alts:['ASTRONAUTS','COSMONAUT'], hint:'Trained person who travels and works beyond Earth' },
+      { pos:[4,4], type:'corner', pts:1, word:'BLACK HOLE',  alts:['BLACKHOLE'],     hint:'Region where gravity is so strong that even light cannot escape' },
+    ]
+  },
+  {
+    title: 'Winter Tales',
+    blocks: [
+      { pos:[0,0], type:'corner', pts:1, word:'BLIZZARD',    alts:[],                hint:'Severe snowstorm with fierce winds and near-zero visibility' },
+      { pos:[0,4], type:'corner', pts:1, word:'SKATE',       alts:['SKATING','ICE SKATE'], hint:'Glide across a frozen surface on bladed boots' },
+      { pos:[1,1], type:'arm',    pts:3, word:'SNOW',        alts:[],                hint:'Soft white frozen precipitation that falls in flakes' },
+      { pos:[1,3], type:'arm',    pts:3, word:'ICE',         alts:[],                hint:'Water in its solid frozen state' },
+      { pos:[2,2], type:'center', pts:5, word:'WINTER',      alts:[],                hint:'The coldest season, marked by short days and long nights' },
+      { pos:[3,1], type:'arm',    pts:3, word:'COLD',        alts:[],                hint:'Low temperature that chills you to the bone' },
+      { pos:[3,3], type:'arm',    pts:3, word:'WIND',        alts:[],                hint:'Moving air driven by atmospheric pressure differences' },
+      { pos:[4,0], type:'corner', pts:1, word:'FROST',       alts:[],                hint:'Delicate ice crystals that coat surfaces on freezing nights' },
+      { pos:[4,4], type:'corner', pts:1, word:'STORM',       alts:['STORMS'],        hint:'Violent weather bringing strong winds, snow, or rain' },
+    ]
+  },
+  {
+    title: "Chef's Kitchen",
+    blocks: [
+      { pos:[0,0], type:'corner', pts:1, word:'RECIPE',      alts:['RECIPES'],       hint:'Step-by-step instructions for preparing a dish' },
+      { pos:[0,4], type:'corner', pts:1, word:'BLADE',       alts:['BLADES'],        hint:'Thin sharp-edged metal strip used for cutting' },
+      { pos:[1,1], type:'arm',    pts:3, word:'COOK',        alts:['COOKING','CHEF'],hint:'Prepare food by applying heat to transform raw ingredients' },
+      { pos:[1,3], type:'arm',    pts:3, word:'KNIFE',       alts:['KNIVES'],        hint:'Sharp-bladed utensil essential for slicing ingredients' },
+      { pos:[2,2], type:'center', pts:5, word:'KITCHEN',     alts:[],                hint:'Room specially equipped for preparing and cooking food' },
+      { pos:[3,1], type:'arm',    pts:3, word:'TASTE',       alts:['FLAVOUR','FLAVOR'], hint:'The sense that distinguishes sweet, salty, sour, and bitter' },
+      { pos:[3,3], type:'arm',    pts:3, word:'STEAM',       alts:[],                hint:'Vapour rising from boiling water, used to cook gently' },
+      { pos:[4,0], type:'corner', pts:1, word:'SPICE',       alts:['SPICES'],        hint:'Aromatic plant substance used to season and flavour food' },
+      { pos:[4,4], type:'corner', pts:1, word:'POT',         alts:['POTS'],          hint:'Deep round cooking vessel for boiling or simmering' },
+    ]
+  },
+  {
+    title: 'Ancient Library',
+    blocks: [
+      { pos:[0,0], type:'corner', pts:1, word:'NOVEL',       alts:['NOVELS'],        hint:'Long work of fictional prose published as a bound book' },
+      { pos:[0,4], type:'corner', pts:1, word:'LADDER',      alts:['LADDERS'],       hint:'Climbing frame with rungs, used to reach high shelves' },
+      { pos:[1,1], type:'arm',    pts:3, word:'BOOK',        alts:['BOOKS'],         hint:'Bound set of printed pages containing knowledge or story' },
+      { pos:[1,3], type:'arm',    pts:3, word:'SHELF',       alts:['SHELVES'],       hint:'Flat horizontal surface fixed to a wall for storing items' },
+      { pos:[2,2], type:'center', pts:5, word:'LIBRARY',     alts:['LIBRARIES'],     hint:'Institution where books are collected, stored, and borrowed' },
+      { pos:[3,1], type:'arm',    pts:3, word:'QUIET',       alts:['SILENCE','SILENT','HUSH'], hint:'The absence of noise; calm and still atmosphere' },
+      { pos:[3,3], type:'arm',    pts:3, word:'READ',        alts:['READING'],       hint:'Interpret written or printed text with your eyes' },
+      { pos:[4,0], type:'corner', pts:1, word:'WHISPER',     alts:['WHISPERS'],      hint:'Speak so softly that only someone very close can hear' },
+      { pos:[4,4], type:'corner', pts:1, word:'PAGE',        alts:['PAGES'],         hint:'A single leaf of paper within a book' },
+    ]
+  },
+  {
+    title: 'Wild Animals',
+    blocks: [
+      { pos:[0,0], type:'corner', pts:1, word:'STRIPE',      alts:['STRIPES'],       hint:'Bold contrasting band of colour on a surface or animal coat' },
+      { pos:[0,4], type:'corner', pts:1, word:'MANE',        alts:[],                hint:'Long thick hair around the neck, famously worn by lions' },
+      { pos:[1,1], type:'arm',    pts:3, word:'TIGER',       alts:[],                hint:'Largest wild cat, known for its orange coat and black stripes' },
+      { pos:[1,3], type:'arm',    pts:3, word:'LION',        alts:[],                hint:'Apex predator of the savanna, called the King of the Jungle' },
+      { pos:[2,2], type:'center', pts:5, word:'JUNGLE',      alts:['RAINFOREST'],    hint:'Dense tropical forest teeming with exotic wildlife' },
+      { pos:[3,1], type:'arm',    pts:3, word:'SNAKE',       alts:['SERPENT'],       hint:'Legless reptile that moves by slithering along the ground' },
+      { pos:[3,3], type:'arm',    pts:3, word:'MONKEY',      alts:['MONKEYS','APE'], hint:'Agile primate that swings through tree branches' },
+      { pos:[4,0], type:'corner', pts:1, word:'VENOM',       alts:['POISON'],        hint:'Toxic fluid injected by a bite or sting' },
+      { pos:[4,4], type:'corner', pts:1, word:'BANANA',      alts:['BANANAS'],       hint:'Yellow curved fruit beloved by primates' },
+    ]
+  },
+  {
+    title: 'Digital World',
+    blocks: [
+      { pos:[0,0], type:'corner', pts:1, word:'MOUSE',       alts:[],                hint:'Small handheld device you move to control a cursor on screen' },
+      { pos:[0,4], type:'corner', pts:1, word:'WIFI',        alts:['WI-FI','WIRELESS'], hint:'Wireless technology that connects devices to the internet' },
+      { pos:[1,1], type:'arm',    pts:3, word:'SCREEN',      alts:['DISPLAY','MONITOR'], hint:'Flat panel that shows visual output from a device' },
+      { pos:[1,3], type:'arm',    pts:3, word:'NETWORK',     alts:[],                hint:'System of interconnected computers sharing data' },
+      { pos:[2,2], type:'center', pts:5, word:'COMPUTER',    alts:['PC','LAPTOP'],   hint:'Electronic device that processes data and runs software' },
+      { pos:[3,1], type:'arm',    pts:3, word:'CODE',        alts:['SOFTWARE','PROGRAM'], hint:'Written instructions that tell a computer what to do' },
+      { pos:[3,3], type:'arm',    pts:3, word:'DATA',        alts:[],                hint:'Raw facts and figures processed or stored digitally' },
+      { pos:[4,0], type:'corner', pts:1, word:'BUG',         alts:['ERROR'],         hint:'Flaw or error in a program that causes unexpected behaviour' },
+      { pos:[4,4], type:'corner', pts:1, word:'DATABASE',    alts:['DB'],            hint:'Organised collection of structured data stored electronically' },
+    ]
+  },
+];
+
+/* ─────────────────────────── GAME STATE ─────────────────────────── */
+let numPlayers   = 1;
+let curPlayer    = 0;
+let scores       = [0, 0];
+let puzzleSeq    = [];
+let curPuzzleIdx = 0;
+let blockState   = [];   // array of {revealed, ...block}
+let pendingBlock = null; // index into blockState of block being guessed
+let gameActive   = false;
+
+/* ─────────────────────────── HELPERS ────────────────────────────── */
+function $(id) { return document.getElementById(id); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+function normalize(s) {
+  return s.trim().toUpperCase().replace(/\s+/g, ' ');
+}
+
+function isCorrect(input, block) {
+  const n = normalize(input);
+  if (n === normalize(block.word)) return true;
+  return block.alts.some(a => normalize(a) === n);
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+/* ─────────────────────────── START ──────────────────────────────── */
+function setPlayers(n) {
+  numPlayers = n;
+  $('btn1').classList.toggle('on', n === 1);
+  $('btn2').classList.toggle('on', n === 2);
+}
+
+function startGame() {
+  scores       = [0, 0];
+  curPlayer    = 0;
+  curPuzzleIdx = 0;
+  puzzleSeq    = shuffle([...Array(PUZZLES.length).keys()]);
+  gameActive   = true;
+  showScreen('game-screen');
+  loadPuzzle();
+}
+
+function backToStart() {
+  showScreen('start-screen');
+}
+
+/* ─────────────────────────── PUZZLE ─────────────────────────────── */
+function loadPuzzle() {
+  const puzzle = PUZZLES[puzzleSeq[curPuzzleIdx]];
+  blockState   = puzzle.blocks.map(b => ({ ...b, revealed: false }));
+
+  const grid = $('grid');
+  grid.innerHTML = '';
+
+  blockState.forEach((b, idx) => {
+    const el = document.createElement('div');
+    el.className = 'block';
+    el.dataset.idx = idx;
+    el.style.gridRow    = b.pos[0] + 1;
+    el.style.gridColumn = b.pos[1] + 1;
+
+    const typeLabel = b.type === 'center' ? 'Master' : b.type === 'arm' ? 'Arm' : 'Corner';
+    el.innerHTML = `<div class="q-mark">?</div><div class="pt-tag">${b.pts}pt${b.pts>1?'s':''}</div>`;
+    el.title = `${typeLabel} — ${b.pts} point${b.pts>1?'s':''}`;
+    el.addEventListener('click', () => onBlockClick(idx));
+    grid.appendChild(el);
+  });
+
+  $('counter').textContent = `Puzzle ${curPuzzleIdx + 1} of ${PUZZLES.length}`;
+  renderScoreboard();
+}
+
+function renderScoreboard() {
+  const sb = $('scoreboard');
+  if (numPlayers === 1) {
+    sb.innerHTML = `
+      <div class="score-card active">
+        <div class="name">Score</div>
+        <div class="pts">${scores[0]}</div>
+        <div class="turn-tag">&nbsp;</div>
+      </div>`;
+  } else {
+    sb.innerHTML = [0,1].map(i => `
+      <div class="score-card ${i===curPlayer?'active':''}">
+        <div class="name">Player ${i+1}</div>
+        <div class="pts">${scores[i]}</div>
+        <div class="turn-tag">${i===curPlayer?'your turn':''}</div>
+      </div>`).join('');
+  }
+}
+
+/* ─────────────────────────── BLOCK CLICK ────────────────────────── */
+function onBlockClick(idx) {
+  if (!gameActive) return;
+  const b = blockState[idx];
+  if (b.revealed) return;
+
+  pendingBlock = idx;
+
+  const typeLabel = b.type === 'center' ? 'Master Word — 5 pts'
+                  : b.type === 'arm'    ? 'Arm Word — 3 pts'
+                  :                       'Corner Word — 1 pt';
+
+  $('m-who').textContent  = numPlayers === 2 ? `Player ${curPlayer + 1}'s turn` : '';
+  $('m-hint').textContent = b.hint;
+  $('m-pts').textContent  = typeLabel;
+  $('m-input').value      = '';
+  $('modal').classList.add('open');
+  setTimeout(() => $('m-input').focus(), 80);
+}
+
+function closeModal() {
+  $('modal').classList.remove('open');
+  pendingBlock = null;
+}
+
+/* ─────────────────────────── SUBMIT GUESS ───────────────────────── */
+function submitGuess() {
+  if (pendingBlock === null) return;
+  const b   = blockState[pendingBlock];
+  const val = $('m-input').value;
+  closeModal();
+
+  if (isCorrect(val, b)) {
+    /* Correct answer */
+    b.revealed = true;
+    scores[curPlayer] += b.pts;
+
+    const el = $('grid').querySelector(`[data-idx="${pendingBlock}"]`);
+    el.classList.remove();
+    el.classList.add('block', 'revealed', `rev-${b.type}`);
+    el.innerHTML = `<div class="rev-word">${b.word}</div><div class="rev-pts">+${b.pts} pt${b.pts>1?'s':''}</div>`;
+
+    flash(true, `+${b.pts}`);
+
+    if (numPlayers === 2) curPlayer = 1 - curPlayer;
+    renderScoreboard();
+
+    /* Check puzzle complete */
+    setTimeout(() => {
+      if (blockState.every(x => x.revealed)) {
+        curPuzzleIdx++;
+        if (curPuzzleIdx >= PUZZLES.length) {
+          endGame(true);
+        } else {
+          loadPuzzle();
+        }
+      }
+    }, 700);
+
+  } else {
+    /* Wrong answer — game over */
+    flash(false, 'Wrong!');
+    gameActive = false;
+    setTimeout(() => endGame(false), 1100);
+  }
+}
+
+/* ─────────────────────────── FLASH ──────────────────────────────── */
+function flash(ok, text) {
+  const f = $('flash');
+  const b = $('flash-badge');
+  b.className = `flash-badge ${ok ? 'ok' : 'bad'}`;
+  b.textContent = text;
+  f.classList.add('show');
+  setTimeout(() => f.classList.remove('show'), 800);
+}
+
+/* ─────────────────────────── GAME OVER ──────────────────────────── */
+function endGame(completed) {
+  showScreen('gameover-screen');
+  $('go-title').textContent = completed ? 'All Done!' : 'Game Over';
+
+  if (numPlayers === 1) {
+    $('go-cards').innerHTML = `
+      <div class="go-card winner">
+        <div class="go-name">Your Score</div>
+        <div class="go-pts">${scores[0]}</div>
+      </div>`;
+    $('go-msg').textContent = completed
+      ? `You solved every puzzle and scored ${scores[0]} points. Brilliant!`
+      : `Wrong answer! You scored ${scores[0]} point${scores[0]!==1?'s':''} before the game ended.`;
+  } else {
+    const winner = scores[0] > scores[1] ? 0 : scores[1] > scores[0] ? 1 : -1;
+    $('go-cards').innerHTML = [0,1].map(i => `
+      <div class="go-card ${winner===i?'winner':''}">
+        ${winner===i?'<div class="win-badge">Winner!</div>':''}
+        <div class="go-name">Player ${i+1}</div>
+        <div class="go-pts">${scores[i]}</div>
+      </div>`).join('');
+    $('go-msg').textContent = winner === -1
+      ? "It's a tie! Well played by both."
+      : `Player ${winner+1} wins with ${scores[winner]} points!`;
+  }
+}
+</script>
+</body>
+</html>
