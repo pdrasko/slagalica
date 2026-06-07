@@ -866,7 +866,8 @@ function closeModal() {
 /* ═══════════════════════════ SUBMIT ═══════════════════════════════ */
 function submitGuess() {
   if (pendingBlock === null) return;
-  const b   = blockState[pendingBlock];
+  const blockIdx = pendingBlock;          // save before closeModal nulls it
+  const b   = blockState[blockIdx];
   const val = $('m-input').value;
   closeModal();
 
@@ -874,7 +875,7 @@ function submitGuess() {
     b.revealed = true;
     scores[curPlayer] += b.pts;
 
-    const el = $('grid').querySelector(`[data-idx="${pendingBlock}"]`);
+    const el = $('grid').querySelector(`[data-idx="${blockIdx}"]`);
     el.classList.remove('neighbor');
     const playerClass = numPlayers === 2 ? ` by-${curPlayer}` : '';
     el.className = `block revealed rev-${b.dist}${playerClass}`;
