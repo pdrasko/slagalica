@@ -219,6 +219,12 @@
       color: #fff; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.18s;
     }
     .again-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,.4); }
+
+    /* player ownership on revealed blocks */
+    .block.by-0 { border-color: #a78bfa !important; }
+    .block.by-1 { border-color: #f59e0b !important; }
+    .block.by-0 .rev-pts::after { content: ' · P1'; color: #a78bfa; }
+    .block.by-1 .rev-pts::after { content: ' · P2'; color: #f59e0b; }
   </style>
 </head>
 <body>
@@ -241,7 +247,7 @@
     <strong>How to play</strong><br>
     25 blocks form an X shape — a center and four chains of six radiating outward.
     Click any unrevealed block, read the clue, and type the hidden word.<br><br>
-    Correct → points + next turn. Wrong → game over!<br><br>
+    Correct → earn points and your square is marked. Wrong → turn passes to your opponent (single player: game over).<br><br>
     Blue-glowing blocks are connected to an already-revealed word. Each word in the chain is semantically linked to its neighbours.
   </div>
 </div>
@@ -870,7 +876,8 @@ function submitGuess() {
 
     const el = $('grid').querySelector(`[data-idx="${pendingBlock}"]`);
     el.classList.remove('neighbor');
-    el.className = `block revealed rev-${b.dist}`;
+    const playerClass = numPlayers === 2 ? ` by-${curPlayer}` : '';
+    el.className = `block revealed rev-${b.dist}${playerClass}`;
     el.innerHTML = `<div class="rev-word">${b.word}</div><div class="rev-pts">+${b.pts}pt${b.pts>1?'s':''}</div>`;
 
     flash(true, `+${b.pts}`);
@@ -889,8 +896,16 @@ function submitGuess() {
 
   } else {
     flash(false, 'Wrong!');
-    gameActive = false;
-    setTimeout(() => endGame(false), 1100);
+    if (numPlayers === 2) {
+      // Pass the turn — block stays unrevealed
+      setTimeout(() => {
+        curPlayer = 1 - curPlayer;
+        renderScoreboard();
+      }, 900);
+    } else {
+      gameActive = false;
+      setTimeout(() => endGame(false), 1100);
+    }
   }
 }
 
