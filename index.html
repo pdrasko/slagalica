@@ -17,11 +17,10 @@
       justify-content: center;
     }
 
-    /* ─── SCREENS ─────────────────────────────────────────── */
-    .screen { display: none; flex-direction: column; align-items: center; padding: 24px 16px; gap: 28px; }
+    .screen { display: none; flex-direction: column; align-items: center; padding: 24px 16px; gap: 24px; }
     .screen.active { display: flex; }
 
-    /* ─── START SCREEN ────────────────────────────────────── */
+    /* ── START ── */
     #start-screen { text-align: center; max-width: 480px; width: 100%; }
 
     .logo {
@@ -33,376 +32,230 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+    .tagline { color: #64748b; font-size: 1rem; margin-top: -6px; }
 
-    .tagline { color: #64748b; font-size: 1rem; margin-top: -8px; }
-
-    .section-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #475569;
-      margin-bottom: 10px;
-    }
-
+    .section-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #475569; margin-bottom: 10px; }
     .toggle-row { display: flex; gap: 12px; justify-content: center; }
-
     .toggle-btn {
-      padding: 12px 28px;
-      border-radius: 10px;
-      border: 2px solid #1e293b;
-      background: #131928;
-      color: #94a3b8;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: all 0.18s;
+      padding: 12px 28px; border-radius: 10px; border: 2px solid #1e293b;
+      background: #131928; color: #94a3b8; font-size: 0.95rem; cursor: pointer; transition: all 0.18s;
     }
     .toggle-btn:hover { border-color: #334155; color: #e0e0ff; }
     .toggle-btn.on { border-color: #7c3aed; background: #1e1040; color: #c4b5fd; box-shadow: 0 0 16px rgba(124,58,237,.25); }
 
     .start-btn {
-      padding: 15px 52px;
-      border-radius: 12px;
-      border: none;
+      padding: 15px 52px; border-radius: 12px; border: none;
       background: linear-gradient(135deg, #7c3aed, #2563eb);
-      color: #fff;
-      font-size: 1.05rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.18s;
-      letter-spacing: 0.04em;
+      color: #fff; font-size: 1.05rem; font-weight: 700; cursor: pointer;
+      transition: all 0.18s; letter-spacing: 0.04em;
     }
     .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,.4); }
 
     .rules {
-      background: #111827;
-      border: 1px solid #1e293b;
-      border-radius: 12px;
-      padding: 16px 20px;
-      font-size: 0.85rem;
-      color: #64748b;
-      line-height: 1.75;
-      text-align: left;
+      background: #111827; border: 1px solid #1e293b; border-radius: 12px;
+      padding: 16px 20px; font-size: 0.85rem; color: #64748b; line-height: 1.75; text-align: left;
     }
     .rules strong { color: #94a3b8; }
 
-    /* ─── GAME SCREEN ─────────────────────────────────────── */
-    #game-screen { width: 100%; max-width: 560px; }
+    /* ── GAME ── */
+    #game-screen { width: 100%; max-width: 960px; }
 
-    /* Scoreboard */
     .scoreboard { display: flex; gap: 16px; justify-content: center; width: 100%; }
-
     .score-card {
-      flex: 1;
-      max-width: 160px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      border: 2px solid #1e293b;
-      background: #111827;
-      text-align: center;
-      transition: all 0.25s;
+      flex: 1; max-width: 160px; padding: 14px 16px; border-radius: 12px;
+      border: 2px solid #1e293b; background: #111827; text-align: center; transition: all 0.25s;
     }
-    .score-card.active {
-      border-color: #7c3aed;
-      background: #140d2e;
-      box-shadow: 0 0 20px rgba(124,58,237,.3);
-    }
+    .score-card.active { border-color: #7c3aed; background: #140d2e; box-shadow: 0 0 20px rgba(124,58,237,.3); }
     .score-card .name { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; }
     .score-card.active .name { color: #a78bfa; }
     .score-card .pts { font-size: 2rem; font-weight: 800; color: #a78bfa; line-height: 1.1; }
     .score-card .turn-tag { font-size: 0.7rem; color: #7c3aed; margin-top: 4px; height: 14px; }
 
-    /* Puzzle counter */
     .puzzle-counter { font-size: 0.8rem; color: #334155; letter-spacing: 0.06em; }
 
-    /* ─── GRID ────────────────────────────────────────────── */
-    .grid-wrap { position: relative; }
+    /* ── GRID ── */
+    .grid-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
 
     .puzzle-grid {
+      --cell: 62px;
+      --gap: 7px;
       display: grid;
-      grid-template-columns: repeat(5, var(--cell));
-      grid-template-rows:    repeat(5, var(--cell));
+      grid-template-columns: repeat(13, var(--cell));
+      grid-template-rows:    repeat(13, var(--cell));
       gap: var(--gap);
-      --cell: 88px;
-      --gap: 8px;
+      width: max-content;
+      margin: 0 auto;
     }
-
-    @media (max-width: 520px) {
-      .puzzle-grid { --cell: 64px; --gap: 6px; }
-    }
-    @media (max-width: 380px) {
-      .puzzle-grid { --cell: 54px; --gap: 5px; }
-    }
+    @media (max-width: 880px) { .puzzle-grid { --cell: 50px; --gap: 6px; } }
+    @media (max-width: 700px) { .puzzle-grid { --cell: 40px; --gap: 5px; } }
+    @media (max-width: 560px) { .puzzle-grid { --cell: 32px; --gap: 4px; } }
+    @media (max-width: 440px) { .puzzle-grid { --cell: 26px; --gap: 3px; } }
 
     .block {
-      width: var(--cell);
-      height: var(--cell);
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      width: var(--cell); height: var(--cell);
+      border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       cursor: pointer;
       border: 2px solid #1e293b;
       background: #111827;
-      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s, background 0.15s;
-      user-select: none;
-      -webkit-user-select: none;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+      user-select: none; position: relative; overflow: hidden;
     }
+    .block:hover { transform: scale(1.08); border-color: #7c3aed; background: #1a0f3a; box-shadow: 0 0 16px rgba(124,58,237,.35); }
+    .block.neighbor { border-color: #2563eb !important; box-shadow: 0 0 10px rgba(37,99,235,.3); }
+    .block.neighbor:hover { border-color: #7c3aed !important; }
 
-    .block:hover {
-      transform: scale(1.06);
-      border-color: #7c3aed;
-      background: #1a0f3a;
-      box-shadow: 0 0 18px rgba(124,58,237,.35);
-    }
+    .block .q-mark { font-size: 1.5rem; opacity: 0.2; line-height: 1; }
+    .block .pt-tag { font-size: 0.6rem; color: #334155; font-weight: 600; margin-top: 2px; }
 
-    .block .q-mark {
-      font-size: 1.8rem;
-      opacity: 0.25;
-      line-height: 1;
-    }
-    @media (max-width: 520px) { .block .q-mark { font-size: 1.3rem; } }
+    @media (max-width: 560px) { .block .q-mark { font-size: 1.1rem; } .block .pt-tag { font-size: 0.5rem; } }
+    @media (max-width: 440px) { .block .q-mark { font-size: 0.9rem; } .block .pt-tag { display: none; } }
 
-    .block .pt-tag {
-      font-size: 0.65rem;
-      color: #334155;
-      margin-top: 4px;
-      font-weight: 600;
-    }
-
-    /* Revealed states */
+    /* revealed */
     .block.revealed { cursor: default; }
     .block.revealed:hover { transform: none; }
 
-    .block.rev-corner { background: #0f1f35; border-color: #2563eb; }
-    .block.rev-arm    { background: #0f2a1f; border-color: #059669; }
-    .block.rev-center { background: #1e0f45; border-color: #7c3aed; box-shadow: 0 0 22px rgba(124,58,237,.35); }
+    .block.rev-0 { background: #1e0f45; border-color: #7c3aed; box-shadow: 0 0 18px rgba(124,58,237,.3); }
+    .block.rev-1 { background: #1a1040; border-color: #6d28d9; }
+    .block.rev-2 { background: #0f1a40; border-color: #2563eb; }
+    .block.rev-3 { background: #082030; border-color: #0284c7; }
+    .block.rev-4 { background: #0a2020; border-color: #0d9488; }
+    .block.rev-5 { background: #0f2a1f; border-color: #059669; }
+    .block.rev-6 { background: #0f2a10; border-color: #16a34a; }
 
-    .block .rev-word {
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      text-align: center;
-      padding: 0 4px;
-      line-height: 1.2;
+    .rev-word {
+      font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.03em; text-align: center; padding: 0 3px; line-height: 1.2;
     }
-    @media (max-width: 520px) { .block .rev-word { font-size: 0.58rem; } }
+    @media (max-width: 560px) { .rev-word { font-size: 0.52rem; } }
+    @media (max-width: 440px) { .rev-word { font-size: 0.44rem; } }
 
-    .block.rev-corner .rev-word { color: #60a5fa; }
-    .block.rev-arm    .rev-word { color: #34d399; }
-    .block.rev-center .rev-word { color: #c4b5fd; }
+    .block.rev-0 .rev-word { color: #c4b5fd; }
+    .block.rev-1 .rev-word { color: #a5b4fc; }
+    .block.rev-2 .rev-word { color: #93c5fd; }
+    .block.rev-3 .rev-word { color: #7dd3fc; }
+    .block.rev-4 .rev-word { color: #5eead4; }
+    .block.rev-5 .rev-word { color: #6ee7b7; }
+    .block.rev-6 .rev-word { color: #86efac; }
 
-    .block .rev-pts {
-      font-size: 0.62rem;
-      margin-top: 3px;
-      opacity: 0.7;
-    }
+    .rev-pts { font-size: 0.55rem; opacity: 0.6; margin-top: 2px; }
+    @media (max-width: 440px) { .rev-pts { display: none; } }
 
-    /* ─── MODAL ───────────────────────────────────────────── */
+    /* ── MODAL ── */
     .overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.75);
-      backdrop-filter: blur(6px);
-      z-index: 50;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+      z-index: 50; align-items: center; justify-content: center; padding: 16px;
     }
     .overlay.open { display: flex; }
 
     .modal {
-      background: #111827;
-      border: 1px solid #1e293b;
-      border-radius: 20px;
-      padding: 36px 32px;
-      max-width: 420px;
-      width: 100%;
-      text-align: center;
+      background: #111827; border: 1px solid #1e293b; border-radius: 20px;
+      padding: 36px 32px; max-width: 420px; width: 100%; text-align: center;
     }
-
-    .modal-who {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #7c3aed;
-      margin-bottom: 6px;
-    }
-
-    .modal-hint-label {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #475569;
-      margin-bottom: 12px;
-    }
-
-    .modal-hint {
-      font-size: 1.1rem;
-      color: #e0e0ff;
-      line-height: 1.55;
-      margin-bottom: 10px;
-    }
-
-    .modal-pts-tag {
-      font-size: 0.8rem;
-      color: #a78bfa;
-      margin-bottom: 24px;
-    }
+    .modal-who { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: #7c3aed; margin-bottom: 6px; min-height: 16px; }
+    .modal-hint-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-bottom: 10px; }
+    .modal-hint { font-size: 1.1rem; color: #e0e0ff; line-height: 1.55; margin-bottom: 8px; }
+    .modal-pts-tag { font-size: 0.8rem; color: #a78bfa; margin-bottom: 8px; }
+    .modal-connection { font-size: 0.8rem; color: #60a5fa; margin-bottom: 16px; min-height: 18px; }
 
     .modal input {
-      width: 100%;
-      padding: 14px 18px;
-      border-radius: 10px;
-      border: 2px solid #1e293b;
-      background: #0d0d1a;
-      color: #e0e0ff;
-      font-size: 1rem;
-      text-align: center;
-      letter-spacing: 0.06em;
-      margin-bottom: 14px;
-      outline: none;
-      transition: border-color 0.18s;
+      width: 100%; padding: 14px 18px; border-radius: 10px;
+      border: 2px solid #1e293b; background: #0d0d1a; color: #e0e0ff;
+      font-size: 1rem; text-align: center; letter-spacing: 0.06em;
+      margin-bottom: 14px; outline: none; transition: border-color 0.18s;
     }
     .modal input:focus { border-color: #7c3aed; }
 
     .modal-btns { display: flex; gap: 10px; }
-
     .btn-skip {
-      padding: 13px 20px;
-      border-radius: 10px;
-      border: 2px solid #1e293b;
-      background: transparent;
-      color: #475569;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.15s;
-      white-space: nowrap;
+      padding: 13px 20px; border-radius: 10px; border: 2px solid #1e293b;
+      background: transparent; color: #475569; font-size: 0.9rem; cursor: pointer; transition: all 0.15s;
     }
     .btn-skip:hover { border-color: #334155; color: #94a3b8; }
-
     .btn-go {
-      flex: 1;
-      padding: 13px;
-      border-radius: 10px;
-      border: none;
+      flex: 1; padding: 13px; border-radius: 10px; border: none;
       background: linear-gradient(135deg, #7c3aed, #2563eb);
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s;
+      color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.15s;
     }
     .btn-go:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(124,58,237,.4); }
 
-    /* ─── FLASH RESULT ────────────────────────────────────── */
+    /* ── FLASH ── */
     #flash {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
+      display: none; position: fixed; inset: 0; z-index: 200;
+      align-items: center; justify-content: center; pointer-events: none;
     }
-    #flash.show { display: flex; }
-
     .flash-badge {
-      font-size: 2.6rem;
-      font-weight: 900;
-      padding: 18px 40px;
-      border-radius: 18px;
-      animation: pop 0.45s cubic-bezier(.34,1.56,.64,1);
+      font-size: 2.6rem; font-weight: 900; padding: 18px 40px; border-radius: 18px;
+      animation: pop 0.5s cubic-bezier(.34,1.56,.64,1) both;
     }
     .flash-badge.ok  { background: rgba(52,211,153,.15); border: 3px solid #34d399; color: #34d399; }
-    .flash-badge.bad { background: rgba(239,68,68,.15);  border: 3px solid #ef4444;  color: #ef4444; }
-
+    .flash-badge.bad { background: rgba(239,68,68,.15);  border: 3px solid #ef4444; color: #ef4444; }
     @keyframes pop {
-      from { transform: scale(.4); opacity: 0; }
+      from { transform: scale(.3); opacity: 0; }
       to   { transform: scale(1);  opacity: 1; }
     }
 
-    /* ─── GAME OVER SCREEN ────────────────────────────────── */
+    /* ── GAME OVER ── */
     #gameover-screen { text-align: center; max-width: 480px; width: 100%; }
-
     .go-title {
-      font-size: clamp(2rem, 7vw, 3rem);
-      font-weight: 800;
+      font-size: clamp(2rem, 7vw, 3rem); font-weight: 800;
       background: linear-gradient(135deg, #a78bfa, #60a5fa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-
     .go-msg { color: #64748b; font-size: 0.95rem; }
-
     .go-cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-
     .go-card {
-      padding: 24px 28px;
-      border-radius: 14px;
-      border: 2px solid #1e293b;
-      background: #111827;
-      min-width: 140px;
+      padding: 24px 28px; border-radius: 14px; border: 2px solid #1e293b;
+      background: #111827; min-width: 140px;
     }
     .go-card.winner { border-color: #f59e0b; background: #1a1203; box-shadow: 0 0 30px rgba(245,158,11,.25); }
-
     .go-card .win-badge { font-size: 0.72rem; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
     .go-card .go-name   { font-size: 0.85rem; color: #64748b; margin-bottom: 6px; }
     .go-card .go-pts    { font-size: 2.6rem; font-weight: 800; color: #e0e0ff; }
-
     .again-btn {
-      padding: 15px 52px;
-      border-radius: 12px;
-      border: none;
+      padding: 15px 52px; border-radius: 12px; border: none;
       background: linear-gradient(135deg, #7c3aed, #2563eb);
-      color: #fff;
-      font-size: 1.05rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.18s;
+      color: #fff; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.18s;
     }
     .again-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,.4); }
   </style>
 </head>
 <body>
 
-<!-- ═══════════════════════ START SCREEN ═══════════════════════ -->
+<!-- START -->
 <div id="start-screen" class="screen active">
   <div>
     <div class="logo">ASSOCIATION</div>
-    <div class="tagline">Find the hidden connections between words</div>
+    <div class="tagline">Follow the chain — find the hidden word</div>
   </div>
-
   <div>
-    <div class="section-label">Number of players</div>
+    <div class="section-label">Players</div>
     <div class="toggle-row">
       <button class="toggle-btn on" id="btn1" onclick="setPlayers(1)">1 Player</button>
       <button class="toggle-btn"   id="btn2" onclick="setPlayers(2)">2 Players</button>
     </div>
   </div>
-
   <button class="start-btn" onclick="startGame()">Start Game</button>
-
   <div class="rules">
     <strong>How to play</strong><br>
-    Nine blocks form an X shape. Click any unrevealed block to read a clue, then type the hidden word.<br><br>
-    A correct answer earns points and passes the turn. A wrong answer <em>ends the game</em>.<br><br>
-    <strong>Points:</strong> Center word = 5 pts &nbsp;·&nbsp; Arm words = 3 pts &nbsp;·&nbsp; Corner words = 1 pt<br><br>
-    Every word is linked to its X-neighbours by a shared theme.
+    25 blocks form an X shape — a center and four chains of six radiating outward.
+    Click any unrevealed block, read the clue, and type the hidden word.<br><br>
+    Correct → points + next turn. Wrong → game over!<br><br>
+    Blue-glowing blocks are connected to an already-revealed word. Each word in the chain is semantically linked to its neighbours.
   </div>
 </div>
 
-<!-- ═══════════════════════ GAME SCREEN ════════════════════════ -->
+<!-- GAME -->
 <div id="game-screen" class="screen">
   <div class="scoreboard" id="scoreboard"></div>
-  <div class="puzzle-grid" id="grid"></div>
+  <div class="grid-wrap">
+    <div class="puzzle-grid" id="grid"></div>
+  </div>
   <div class="puzzle-counter" id="counter"></div>
 </div>
 
-<!-- ═══════════════════════ GAME OVER SCREEN ══════════════════ -->
+<!-- GAME OVER -->
 <div id="gameover-screen" class="screen">
   <div class="go-title" id="go-title"></div>
   <div class="go-cards" id="go-cards"></div>
@@ -410,14 +263,15 @@
   <button class="again-btn" onclick="backToStart()">Play Again</button>
 </div>
 
-<!-- ═══════════════════════ GUESS MODAL ════════════════════════ -->
+<!-- MODAL -->
 <div class="overlay" id="modal">
   <div class="modal">
-    <div class="modal-who"   id="m-who"></div>
+    <div class="modal-who"        id="m-who"></div>
     <div class="modal-hint-label">Clue</div>
-    <div class="modal-hint"  id="m-hint"></div>
-    <div class="modal-pts-tag" id="m-pts"></div>
-    <input type="text" id="m-input" placeholder="Type your answer…" maxlength="40"
+    <div class="modal-hint"       id="m-hint"></div>
+    <div class="modal-pts-tag"    id="m-pts"></div>
+    <div class="modal-connection" id="m-conn"></div>
+    <input type="text" id="m-input" placeholder="Your answer…" maxlength="40"
            autocomplete="off" autocorrect="off" spellcheck="false"
            onkeydown="if(event.key==='Enter')submitGuess()">
     <div class="modal-btns">
@@ -427,207 +281,475 @@
   </div>
 </div>
 
-<!-- ═══════════════════════ FLASH ══════════════════════════════ -->
-<div id="flash">
-  <div class="flash-badge" id="flash-badge"></div>
-</div>
+<!-- FLASH -->
+<div id="flash"></div>
 
 <script>
-/* ─────────────────────────── PUZZLE DATA ─────────────────────────── */
-/*
-  Layout (row, col) on a 5×5 grid — X pattern:
-    (0,0)       (0,4)
-      (1,1)   (1,3)
-          (2,2)
-      (3,1)   (3,3)
-    (4,0)       (4,4)
-
-  Neighbour pairs (share an edge in the X skeleton):
-    corner–arm: (0,0)↔(1,1)  (0,4)↔(1,3)  (4,0)↔(3,1)  (4,4)↔(3,3)
-    arm–center: (1,1)↔(2,2)  (1,3)↔(2,2)  (3,1)↔(2,2)  (3,3)↔(2,2)
-
-  Every word must share an association with each of its X-neighbours.
-*/
+/* ═══════════════════════════ PUZZLE DATA ═══════════════════════════
+   Each puzzle: center + 4 arms × 6 blocks.
+   Arms array index 0 = adjacent to center (distance 1).
+   Every word must semantically link to both neighbours in the chain.
+═══════════════════════════════════════════════════════════════════ */
 const PUZZLES = [
   {
     title: 'Music World',
-    blocks: [
-      { pos:[0,0], type:'corner', pts:1, word:'TRUMPET',     alts:[],                hint:'Miles Davis played this gleaming brass wind instrument' },
-      { pos:[0,4], type:'corner', pts:1, word:'GUITAR',      alts:[],                hint:'Six-stringed instrument strummed or picked by rock stars' },
-      { pos:[1,1], type:'arm',    pts:3, word:'JAZZ',        alts:[],                hint:'Improvisational genre born in the streets of New Orleans' },
-      { pos:[1,3], type:'arm',    pts:3, word:'ROCK',        alts:['ROCK MUSIC'],    hint:'Elvis, Beatles, and Led Zeppelin defined this electrifying genre' },
-      { pos:[2,2], type:'center', pts:5, word:'MUSIC',       alts:[],                hint:'The universal art of arranging sound in time' },
-      { pos:[3,1], type:'arm',    pts:3, word:'POP',         alts:['POP MUSIC'],     hint:'Radio-friendly, chart-topping mainstream genre' },
-      { pos:[3,3], type:'arm',    pts:3, word:'CLASSICAL',   alts:['CLASSICAL MUSIC'],hint:'Mozart, Beethoven, and Bach composed in this timeless genre' },
-      { pos:[4,0], type:'corner', pts:1, word:'STAGE',       alts:[],                hint:'Elevated platform where performers appear before an audience' },
-      { pos:[4,4], type:'corner', pts:1, word:'ORCHESTRA',   alts:[],                hint:'Large ensemble of strings, wind, and percussion instruments' },
-    ]
+    center: { word:'MUSIC',      alts:[],                   hint:'The universal art of arranging sound in time' },
+    arms: {
+      tl: [
+        { word:'SONG',        alts:['SONGS'],             hint:'A short piece of music with melody and words' },
+        { word:'LYRICS',      alts:['LYRIC'],             hint:'The words that are sung in a song' },
+        { word:'WORDS',       alts:['WORD'],              hint:'Units of language that make up sentences' },
+        { word:'POET',        alts:['POETS','POETRY'],    hint:'A person who crafts verse and rhyme' },
+        { word:'PEN',         alts:['PENS'],              hint:'Ink-filled instrument used for writing' },
+        { word:'INK',         alts:[],                   hint:'Fluid used for writing or printing on paper' },
+      ],
+      tr: [
+        { word:'JAZZ',        alts:[],                   hint:'Improvisational genre born in New Orleans' },
+        { word:'TRUMPET',     alts:['TRUMPETS'],         hint:'Brass wind instrument Miles Davis made famous' },
+        { word:'BRASS',       alts:[],                   hint:'Shiny copper-zinc alloy used for instruments' },
+        { word:'GOLD',        alts:[],                   hint:'Precious yellow metal valued throughout history' },
+        { word:'RING',        alts:['RINGS'],            hint:'Circular band worn on a finger' },
+        { word:'DIAMOND',     alts:['DIAMONDS'],         hint:'Hardest natural gemstone, often on engagement rings' },
+      ],
+      bl: [
+        { word:'ROCK',        alts:['ROCK MUSIC'],       hint:'Electric guitar-driven genre of Elvis and Led Zeppelin' },
+        { word:'GUITAR',      alts:['GUITARS'],          hint:'Six-stringed instrument central to rock music' },
+        { word:'STRING',      alts:['STRINGS'],          hint:'Thin cord that vibrates to produce musical notes' },
+        { word:'VIOLIN',      alts:['VIOLINS'],          hint:'Bowed instrument played under the chin' },
+        { word:'ORCHESTRA',   alts:[],                   hint:'Large ensemble of string, wind and percussion players' },
+        { word:'HALL',        alts:['CONCERT HALL'],     hint:'Large formal room where concerts are performed' },
+      ],
+      br: [
+        { word:'BEAT',        alts:['BEATS'],            hint:'The rhythmic pulse that drives a piece of music' },
+        { word:'DRUM',        alts:['DRUMS'],            hint:'Percussion instrument struck with sticks or hands' },
+        { word:'RHYTHM',      alts:[],                   hint:'A regular repeated pattern of sound' },
+        { word:'DANCE',       alts:['DANCING'],          hint:'Moving your body expressively to music' },
+        { word:'STAGE',       alts:['STAGES'],           hint:'Elevated platform where performers appear' },
+        { word:'CURTAIN',     alts:['CURTAINS'],         hint:'Heavy drape pulled aside to reveal a stage' },
+      ],
+    },
   },
   {
     title: 'Ocean Deep',
-    blocks: [
-      { pos:[0,0], type:'corner', pts:1, word:'SURF',        alts:['SURFING'],       hint:'Ride a board across the face of a breaking wave' },
-      { pos:[0,4], type:'corner', pts:1, word:'SHARK',       alts:[],                hint:'Apex predator with rows of razor-sharp teeth' },
-      { pos:[1,1], type:'arm',    pts:3, word:'WAVE',        alts:['WAVES'],         hint:'Rolling swell of water moving toward the shore' },
-      { pos:[1,3], type:'arm',    pts:3, word:'FISH',        alts:[],                hint:'Gilled vertebrate that breathes and lives underwater' },
-      { pos:[2,2], type:'center', pts:5, word:'OCEAN',       alts:[],                hint:'Vast body of saltwater covering over 70% of Earth' },
-      { pos:[3,1], type:'arm',    pts:3, word:'CURRENT',     alts:['CURRENTS'],      hint:'Steady, flowing stream of water within the sea' },
-      { pos:[3,3], type:'arm',    pts:3, word:'DEPTH',       alts:[],                hint:'The measurement from surface to the bottom of the sea' },
-      { pos:[4,0], type:'corner', pts:1, word:'TIDE',        alts:['TIDES'],         hint:'The daily rise and fall of sea level driven by the moon' },
-      { pos:[4,4], type:'corner', pts:1, word:'ABYSS',       alts:[],                hint:'The deepest, darkest trench of the ocean floor' },
-    ]
+    center: { word:'OCEAN',      alts:['SEA'],              hint:'Vast body of saltwater covering 70 % of Earth' },
+    arms: {
+      tl: [
+        { word:'WAVE',        alts:['WAVES'],            hint:'Rolling swell of water moving toward the shore' },
+        { word:'SURF',        alts:['SURFING'],          hint:'Ride a board across the face of a breaking wave' },
+        { word:'BEACH',       alts:['BEACHES'],          hint:'Sandy shore where the land meets the sea' },
+        { word:'SAND',        alts:[],                   hint:'Tiny grains of rock and shell at the shore' },
+        { word:'CASTLE',      alts:['CASTLES'],          hint:'Fortified structure with towers — or built from sand' },
+        { word:'KING',        alts:['KINGS','QUEEN'],    hint:'Male ruler of a kingdom, lives in a castle' },
+      ],
+      tr: [
+        { word:'FISH',        alts:['FISHES'],           hint:'Gilled vertebrate that breathes and lives underwater' },
+        { word:'NET',         alts:['NETS'],             hint:'Mesh of woven threads used for catching' },
+        { word:'SPIDER',      alts:['SPIDERS'],          hint:'Eight-legged creature famous for spinning' },
+        { word:'WEB',         alts:['WEBS'],             hint:'Sticky silk structure spun to trap prey' },
+        { word:'INTERNET',    alts:['THE INTERNET','NET'],hint:'Global network connecting computers worldwide' },
+        { word:'COMPUTER',    alts:['COMPUTERS','PC','LAPTOP'], hint:'Electronic device for processing and storing data' },
+      ],
+      bl: [
+        { word:'TIDE',        alts:['TIDES'],            hint:'Daily rise and fall of sea level driven by the Moon' },
+        { word:'MOON',        alts:[],                   hint:"Earth's natural satellite that lights the night" },
+        { word:'NIGHT',       alts:[],                   hint:'The dark period between sunset and sunrise' },
+        { word:'DREAM',       alts:['DREAMS','DREAMING'],hint:'Images and stories your mind creates while asleep' },
+        { word:'SLEEP',       alts:['SLEEPING'],         hint:'Natural state of rest and unconsciousness' },
+        { word:'BED',         alts:['BEDS'],             hint:'Piece of furniture for sleeping and resting' },
+      ],
+      br: [
+        { word:'CURRENT',     alts:['CURRENTS'],         hint:'Steady flowing stream of water within the sea' },
+        { word:'RIVER',       alts:['RIVERS'],           hint:'Large natural stream of water flowing to the sea' },
+        { word:'BRIDGE',      alts:['BRIDGES'],          hint:'Structure built to span a river or gap' },
+        { word:'STONE',       alts:['STONES','ROCK'],    hint:'Hard solid mineral matter found in nature' },
+        { word:'DIAMOND',     alts:['DIAMONDS'],         hint:'Precious gemstone formed from compressed carbon' },
+        { word:'RING',        alts:['RINGS'],            hint:'Circular band set with a precious gemstone' },
+      ],
+    },
   },
   {
     title: 'Fire & Ash',
-    blocks: [
-      { pos:[0,0], type:'corner', pts:1, word:'CANDLE',      alts:['CANDLES'],       hint:'A wax cylinder with a wick you light for soft illumination' },
-      { pos:[0,4], type:'corner', pts:1, word:'OVEN',        alts:[],                hint:'Kitchen appliance that bakes and roasts using intense heat' },
-      { pos:[1,1], type:'arm',    pts:3, word:'FLAME',       alts:['FLAMES'],        hint:'Bright, dancing tongue of burning gas and incandescent particles' },
-      { pos:[1,3], type:'arm',    pts:3, word:'HEAT',        alts:[],                hint:'Thermal energy that raises temperature and can burn' },
-      { pos:[2,2], type:'center', pts:5, word:'FIRE',        alts:[],                hint:'Rapid oxidation that releases light, heat, and flame' },
-      { pos:[3,1], type:'arm',    pts:3, word:'ASH',         alts:[],                hint:'Powdery grey residue left behind after something has burned' },
-      { pos:[3,3], type:'arm',    pts:3, word:'SMOKE',       alts:[],                hint:'Visible aerosol of particles rising from combustion' },
-      { pos:[4,0], type:'corner', pts:1, word:'CHARCOAL',    alts:[],                hint:'Black carbon fuel made by charring wood, used to grill food' },
-      { pos:[4,4], type:'corner', pts:1, word:'CHIMNEY',     alts:[],                hint:'Vertical shaft that carries smoke safely out of a building' },
-    ]
-  },
-  {
-    title: 'Garden of Life',
-    blocks: [
-      { pos:[0,0], type:'corner', pts:1, word:'ROSE',        alts:['ROSES'],         hint:'Thorny flowering plant whose bloom is a symbol of love' },
-      { pos:[0,4], type:'corner', pts:1, word:'OAK',         alts:['OAK TREE'],      hint:'Mighty long-lived tree famous for producing acorns' },
-      { pos:[1,1], type:'arm',    pts:3, word:'FLOWER',      alts:['FLOWERS'],       hint:'Colourful blooming structure that attracts pollinators' },
-      { pos:[1,3], type:'arm',    pts:3, word:'TREE',        alts:['TREES'],         hint:'Tall woody perennial plant with trunk and spreading branches' },
-      { pos:[2,2], type:'center', pts:5, word:'GARDEN',      alts:[],                hint:'Cultivated outdoor space lovingly tended for plants and flowers' },
-      { pos:[3,1], type:'arm',    pts:3, word:'RAIN',        alts:[],                hint:'Water droplets falling from clouds that nourish the earth' },
-      { pos:[3,3], type:'arm',    pts:3, word:'BEE',         alts:['BEES'],          hint:'Fuzzy striped insect that pollinates plants and makes honey' },
-      { pos:[4,0], type:'corner', pts:1, word:'PUDDLE',      alts:['PUDDLES'],       hint:'Small shallow pool of water that forms after rainfall' },
-      { pos:[4,4], type:'corner', pts:1, word:'HONEY',       alts:[],                hint:'Sweet golden liquid produced by bees from flower nectar' },
-    ]
+    center: { word:'FIRE',       alts:['FLAME'],            hint:'Rapid oxidation releasing heat and light' },
+    arms: {
+      tl: [
+        { word:'FLAME',       alts:['FLAMES'],           hint:'Bright dancing tongue of burning gas' },
+        { word:'CANDLE',      alts:['CANDLES'],          hint:'Wax cylinder with a wick you light' },
+        { word:'WAX',         alts:[],                   hint:'Soft substance candles are made from' },
+        { word:'BEE',         alts:['BEES'],             hint:'Striped insect that produces wax and honey' },
+        { word:'HONEY',       alts:[],                   hint:'Sweet golden liquid produced by bees' },
+        { word:'SWEET',       alts:['SUGAR','CANDY'],    hint:'Pleasant sugary taste; also a confection' },
+      ],
+      tr: [
+        { word:'HEAT',        alts:[],                   hint:'Thermal energy that raises temperature' },
+        { word:'OVEN',        alts:['OVENS'],            hint:'Kitchen appliance that bakes using intense heat' },
+        { word:'BREAD',       alts:[],                   hint:'Staple food baked from flour, water and yeast' },
+        { word:'WHEAT',       alts:['GRAIN'],            hint:'Cereal grass whose grain is milled into flour' },
+        { word:'FIELD',       alts:['FIELDS'],           hint:'Open area of farmland for growing crops' },
+        { word:'HARVEST',     alts:['HARVESTING'],       hint:'Gathering of ripe crops from the field' },
+      ],
+      bl: [
+        { word:'ASH',         alts:['ASHES'],            hint:'Grey powdery residue left after burning' },
+        { word:'CHARCOAL',    alts:[],                   hint:'Black carbon fuel made by charring wood' },
+        { word:'GRILL',       alts:['GRILLE','BBQ'],     hint:'Cook food directly over heat or open flame' },
+        { word:'MEAT',        alts:[],                   hint:'Animal flesh prepared and eaten as food' },
+        { word:'BUTCHER',     alts:['BUTCHERS'],         hint:'Person who prepares and sells cuts of meat' },
+        { word:'KNIFE',       alts:['KNIVES','BLADE'],   hint:'Sharp-bladed utensil used for cutting food' },
+      ],
+      br: [
+        { word:'SMOKE',       alts:[],                   hint:'Visible aerosol of particles rising from combustion' },
+        { word:'CHIMNEY',     alts:['CHIMNEYS'],         hint:'Vertical shaft that vents smoke from a fireplace' },
+        { word:'ROOF',        alts:['ROOFS','ROOFTOP'],  hint:'The top covering of a building' },
+        { word:'TILE',        alts:['TILES'],            hint:'Flat piece used to cover roofs or floors' },
+        { word:'FLOOR',       alts:['FLOORS'],           hint:'The bottom surface of a room you walk on' },
+        { word:'CARPET',      alts:['CARPETS','RUG'],    hint:'Thick woven fabric used to cover floors' },
+      ],
+    },
   },
   {
     title: 'Outer Space',
-    blocks: [
-      { pos:[0,0], type:'corner', pts:1, word:'CONSTELLATION', alts:[], hint:'Named pattern of stars visible from Earth, such as Orion' },
-      { pos:[0,4], type:'corner', pts:1, word:'ORBIT',       alts:['ORBITS'],        hint:'Curved path one body follows around another in space' },
-      { pos:[1,1], type:'arm',    pts:3, word:'STAR',        alts:['STARS'],         hint:'Colossal ball of plasma that generates its own light and heat' },
-      { pos:[1,3], type:'arm',    pts:3, word:'PLANET',      alts:['PLANETS'],       hint:'Large spherical body that orbits a star and clears its path' },
-      { pos:[2,2], type:'center', pts:5, word:'SPACE',       alts:['OUTER SPACE'],   hint:'The vast expanse stretching beyond Earth\'s atmosphere' },
-      { pos:[3,1], type:'arm',    pts:3, word:'ROCKET',      alts:['ROCKETS'],       hint:'Vehicle propelled by burning fuel to escape gravity' },
-      { pos:[3,3], type:'arm',    pts:3, word:'GRAVITY',     alts:[],                hint:'Invisible force that pulls masses toward each other across the cosmos' },
-      { pos:[4,0], type:'corner', pts:1, word:'ASTRONAUT',   alts:['ASTRONAUTS','COSMONAUT'], hint:'Trained person who travels and works beyond Earth' },
-      { pos:[4,4], type:'corner', pts:1, word:'BLACK HOLE',  alts:['BLACKHOLE'],     hint:'Region where gravity is so strong that even light cannot escape' },
-    ]
+    center: { word:'SPACE',      alts:['OUTER SPACE'],      hint:'The vast expanse beyond Earth\'s atmosphere' },
+    arms: {
+      tl: [
+        { word:'STAR',        alts:['STARS'],            hint:'Colossal ball of plasma generating its own light' },
+        { word:'CONSTELLATION',alts:['CONSTELLATIONS'], hint:'Named pattern of stars, like Orion or the Bear' },
+        { word:'MYTH',        alts:['MYTHS','LEGEND'],   hint:'Ancient story used to explain the world' },
+        { word:'HERO',        alts:['HEROES'],           hint:'Person admired for courage and noble deeds' },
+        { word:'SWORD',       alts:['SWORDS'],           hint:'Long sharp-bladed weapon used in combat' },
+        { word:'BLADE',       alts:['BLADES'],           hint:'The thin sharp cutting part of a weapon or tool' },
+      ],
+      tr: [
+        { word:'PLANET',      alts:['PLANETS'],          hint:'Large sphere orbiting a star, like Earth or Mars' },
+        { word:'ORBIT',       alts:['ORBITS'],           hint:'Curved path a body takes around another in space' },
+        { word:'GRAVITY',     alts:['GRAVITATION'],      hint:'Invisible force that pulls all masses together' },
+        { word:'FALL',        alts:['FALLING'],          hint:'Move downward under the pull of gravity' },
+        { word:'LEAF',        alts:['LEAVES'],           hint:'Flat green part of a plant that photosynthesises' },
+        { word:'AUTUMN',      alts:['FALL','FALL SEASON'],hint:'Season when leaves turn and fall from trees' },
+      ],
+      bl: [
+        { word:'ROCKET',      alts:['ROCKETS'],          hint:'Vehicle propelled by burning fuel to reach orbit' },
+        { word:'ASTRONAUT',   alts:['ASTRONAUTS','COSMONAUT'],hint:'Trained person who travels beyond Earth' },
+        { word:'SUIT',        alts:['SPACESUIT'],        hint:'Protective garment worn by astronauts in vacuum' },
+        { word:'ARMOR',       alts:['ARMOUR'],           hint:'Protective metal covering worn in battle' },
+        { word:'KNIGHT',      alts:['KNIGHTS'],          hint:'Medieval warrior who wore armour on horseback' },
+        { word:'CASTLE',      alts:['CASTLES'],          hint:'Fortified medieval stronghold with towers and walls' },
+      ],
+      br: [
+        { word:'MOON',        alts:['THE MOON'],         hint:"Earth's natural satellite visible at night" },
+        { word:'CRATER',      alts:['CRATERS'],          hint:'Bowl-shaped hollow caused by an impact' },
+        { word:'METEOR',      alts:['METEORS','METEORITE'],hint:'Rock from space that burns in Earth\'s atmosphere' },
+        { word:'ROCK',        alts:['STONE','ROCKS'],    hint:'Solid natural mineral matter' },
+        { word:'MOUNTAIN',    alts:['MOUNTAINS'],        hint:'Large natural elevation of rock and earth' },
+        { word:'CLIMB',       alts:['CLIMBING'],         hint:'Go up using hands and feet; ascend a mountain' },
+      ],
+    },
   },
   {
-    title: 'Winter Tales',
-    blocks: [
-      { pos:[0,0], type:'corner', pts:1, word:'BLIZZARD',    alts:[],                hint:'Severe snowstorm with fierce winds and near-zero visibility' },
-      { pos:[0,4], type:'corner', pts:1, word:'SKATE',       alts:['SKATING','ICE SKATE'], hint:'Glide across a frozen surface on bladed boots' },
-      { pos:[1,1], type:'arm',    pts:3, word:'SNOW',        alts:[],                hint:'Soft white frozen precipitation that falls in flakes' },
-      { pos:[1,3], type:'arm',    pts:3, word:'ICE',         alts:[],                hint:'Water in its solid frozen state' },
-      { pos:[2,2], type:'center', pts:5, word:'WINTER',      alts:[],                hint:'The coldest season, marked by short days and long nights' },
-      { pos:[3,1], type:'arm',    pts:3, word:'COLD',        alts:[],                hint:'Low temperature that chills you to the bone' },
-      { pos:[3,3], type:'arm',    pts:3, word:'WIND',        alts:[],                hint:'Moving air driven by atmospheric pressure differences' },
-      { pos:[4,0], type:'corner', pts:1, word:'FROST',       alts:[],                hint:'Delicate ice crystals that coat surfaces on freezing nights' },
-      { pos:[4,4], type:'corner', pts:1, word:'STORM',       alts:['STORMS'],        hint:'Violent weather bringing strong winds, snow, or rain' },
-    ]
+    title: 'Wild Jungle',
+    center: { word:'JUNGLE',     alts:['RAINFOREST'],       hint:'Dense tropical forest teeming with wildlife' },
+    arms: {
+      tl: [
+        { word:'TIGER',       alts:['TIGERS'],           hint:'Largest wild cat, orange with black stripes' },
+        { word:'STRIPE',      alts:['STRIPES'],          hint:'Bold contrasting band of colour on a surface' },
+        { word:'ZEBRA',       alts:['ZEBRAS'],           hint:'African horse with distinctive black-and-white stripes' },
+        { word:'AFRICA',      alts:[],                   hint:'Continent home to the Sahara, Nile and Savanna' },
+        { word:'DESERT',      alts:['DESERTS'],          hint:'Arid landscape with very little water' },
+        { word:'SAND',        alts:[],                   hint:'Fine grains of rock and mineral particles' },
+      ],
+      tr: [
+        { word:'MONKEY',      alts:['MONKEYS','APE'],    hint:'Agile primate that swings through jungle trees' },
+        { word:'BANANA',      alts:['BANANAS'],          hint:'Yellow curved fruit beloved by primates' },
+        { word:'YELLOW',      alts:[],                   hint:'Colour of the sun, gold, and ripe bananas' },
+        { word:'SUN',         alts:['THE SUN'],          hint:'Our star at the centre of the solar system' },
+        { word:'HEAT',        alts:[],                   hint:'Thermal energy; high temperature' },
+        { word:'SUMMER',      alts:[],                   hint:'The warmest season of the year' },
+      ],
+      bl: [
+        { word:'SNAKE',       alts:['SNAKES','SERPENT'], hint:'Legless reptile that moves by slithering' },
+        { word:'VENOM',       alts:['POISON'],           hint:'Toxic fluid injected through a bite or sting' },
+        { word:'POISON',      alts:['TOXIN'],            hint:'Substance that causes illness or death' },
+        { word:'ARROW',       alts:['ARROWS'],           hint:'Thin projectile shot from a bow' },
+        { word:'BOW',         alts:['BOWS'],             hint:'Curved weapon that launches arrows' },
+        { word:'HUNT',        alts:['HUNTING','HUNTER'], hint:'Pursue and kill wild animals for food' },
+      ],
+      br: [
+        { word:'TREE',        alts:['TREES'],            hint:'Tall woody perennial plant with trunk and branches' },
+        { word:'VINE',        alts:['VINES'],            hint:'Climbing plant that clings and trails through jungle' },
+        { word:'SWING',       alts:['SWINGING'],         hint:'Seat on ropes moving back and forth — Tarzan style' },
+        { word:'PLAYGROUND',  alts:['PLAY AREA'],        hint:'Outdoor area with equipment for children' },
+        { word:'CHILD',       alts:['CHILDREN','KID'],   hint:'Young human being between infant and teenager' },
+        { word:'SCHOOL',      alts:['SCHOOLS'],          hint:'Institution where children are educated' },
+      ],
+    },
+  },
+  {
+    title: 'Deep Winter',
+    center: { word:'WINTER',     alts:[],                   hint:'The coldest season, marked by short days' },
+    arms: {
+      tl: [
+        { word:'SNOW',        alts:[],                   hint:'White frozen precipitation that falls in flakes' },
+        { word:'BLIZZARD',    alts:[],                   hint:'Severe snowstorm with fierce winds' },
+        { word:'STORM',       alts:['STORMS'],           hint:'Violent weather with strong winds and precipitation' },
+        { word:'THUNDER',     alts:[],                   hint:'Loud rumbling sound that follows lightning' },
+        { word:'LIGHTNING',   alts:[],                   hint:'Bright electrical flash across the sky' },
+        { word:'SKY',         alts:[],                   hint:'The atmosphere above us; what you see looking up' },
+      ],
+      tr: [
+        { word:'ICE',         alts:[],                   hint:'Water in its solid frozen state' },
+        { word:'SKATE',       alts:['SKATING','ICE SKATE'],hint:'Glide on bladed boots across a frozen surface' },
+        { word:'RINK',        alts:['ICE RINK'],         hint:'Frozen surface or arena for skating or hockey' },
+        { word:'SPORT',       alts:['SPORTS'],           hint:'Physical activity or game played competitively' },
+        { word:'MEDAL',       alts:['MEDALS'],           hint:'Metal disc awarded to competition winners' },
+        { word:'GOLD',        alts:[],                   hint:'Precious yellow metal; colour of first-place medals' },
+      ],
+      bl: [
+        { word:'COLD',        alts:[],                   hint:'Low temperature that chills you to the bone' },
+        { word:'COAT',        alts:['JACKET','OVERCOAT'],hint:'Outer garment worn to stay warm in winter' },
+        { word:'FUR',         alts:[],                   hint:'Soft thick hair that covers animals' },
+        { word:'BEAR',        alts:['BEARS'],            hint:'Large omnivorous mammal with thick fur' },
+        { word:'CAVE',        alts:['CAVES'],            hint:'Natural underground hollow in rock' },
+        { word:'SLEEP',       alts:['HIBERNATE','HIBERNATION'],hint:'Prolonged dormant rest — what bears do all winter' },
+      ],
+      br: [
+        { word:'WIND',        alts:[],                   hint:'Moving air driven by atmospheric pressure differences' },
+        { word:'CHILL',       alts:['WINDCHILL'],        hint:'Cold unpleasant sensation; the wind-chill factor' },
+        { word:'FREEZE',      alts:['FREEZING','FROZEN'],hint:'Turn liquid to solid by extreme cold' },
+        { word:'CRYSTAL',     alts:['CRYSTALS'],         hint:'Clear solid with a regular geometric structure' },
+        { word:'GLASS',       alts:[],                   hint:'Hard transparent material made from silica' },
+        { word:'MIRROR',      alts:['MIRRORS'],          hint:'Glass with a reflective backing that shows your image' },
+      ],
+    },
   },
   {
     title: "Chef's Kitchen",
-    blocks: [
-      { pos:[0,0], type:'corner', pts:1, word:'RECIPE',      alts:['RECIPES'],       hint:'Step-by-step instructions for preparing a dish' },
-      { pos:[0,4], type:'corner', pts:1, word:'BLADE',       alts:['BLADES'],        hint:'Thin sharp-edged metal strip used for cutting' },
-      { pos:[1,1], type:'arm',    pts:3, word:'COOK',        alts:['COOKING','CHEF'],hint:'Prepare food by applying heat to transform raw ingredients' },
-      { pos:[1,3], type:'arm',    pts:3, word:'KNIFE',       alts:['KNIVES'],        hint:'Sharp-bladed utensil essential for slicing ingredients' },
-      { pos:[2,2], type:'center', pts:5, word:'KITCHEN',     alts:[],                hint:'Room specially equipped for preparing and cooking food' },
-      { pos:[3,1], type:'arm',    pts:3, word:'TASTE',       alts:['FLAVOUR','FLAVOR'], hint:'The sense that distinguishes sweet, salty, sour, and bitter' },
-      { pos:[3,3], type:'arm',    pts:3, word:'STEAM',       alts:[],                hint:'Vapour rising from boiling water, used to cook gently' },
-      { pos:[4,0], type:'corner', pts:1, word:'SPICE',       alts:['SPICES'],        hint:'Aromatic plant substance used to season and flavour food' },
-      { pos:[4,4], type:'corner', pts:1, word:'POT',         alts:['POTS'],          hint:'Deep round cooking vessel for boiling or simmering' },
-    ]
+    center: { word:'KITCHEN',    alts:[],                   hint:'Room specially equipped for preparing and cooking food' },
+    arms: {
+      tl: [
+        { word:'COOK',        alts:['COOKING','CHEF'],   hint:'Prepare food by applying heat' },
+        { word:'RECIPE',      alts:['RECIPES'],          hint:'Step-by-step instructions for preparing a dish' },
+        { word:'BOOK',        alts:['BOOKS'],            hint:'Bound set of printed pages — recipes come in one' },
+        { word:'LIBRARY',     alts:['LIBRARIES'],        hint:'Place where books are collected and borrowed' },
+        { word:'QUIET',       alts:['SILENCE','SILENT'], hint:'Absence of noise; calm and still atmosphere' },
+        { word:'STUDY',       alts:['STUDYING'],         hint:'Devote time to learning; or a room for working' },
+      ],
+      tr: [
+        { word:'KNIFE',       alts:['KNIVES'],           hint:'Sharp-bladed utensil for slicing food' },
+        { word:'BLADE',       alts:['BLADES'],           hint:'The thin sharp cutting edge of a knife or sword' },
+        { word:'SWORD',       alts:['SWORDS'],           hint:'Long weapon with a sharp blade for combat' },
+        { word:'FIGHT',       alts:['BATTLE','DUEL'],    hint:'Take part in a physical struggle or contest' },
+        { word:'BOX',         alts:['BOXING'],           hint:'Spar with fists; or a rectangular container' },
+        { word:'RING',        alts:['BOXING RING'],      hint:'Square roped area where boxing bouts take place' },
+      ],
+      bl: [
+        { word:'TASTE',       alts:['FLAVOUR','FLAVOR'], hint:'Sense that tells you sweet from sour and salty' },
+        { word:'SPICE',       alts:['SPICES'],           hint:'Aromatic plant substance used to flavour food' },
+        { word:'PEPPER',      alts:['BLACK PEPPER'],     hint:'Common spice — grind it onto your food' },
+        { word:'SALT',        alts:['SEA SALT'],         hint:'White mineral that seasons and preserves food' },
+        { word:'SEA',         alts:['OCEAN'],            hint:'Large body of saltwater — the source of sea salt' },
+        { word:'SAIL',        alts:['SAILING','SAILBOAT'],hint:'Travel by boat using wind power; a boat\'s canvas' },
+      ],
+      br: [
+        { word:'STEAM',       alts:[],                   hint:'Vapour rising from boiling water' },
+        { word:'POT',         alts:['POTS'],             hint:'Deep round vessel for boiling or simmering' },
+        { word:'SOUP',        alts:[],                   hint:'Liquid dish made by simmering ingredients in stock' },
+        { word:'BREAD',       alts:['LOAF'],             hint:'Baked staple made from flour, water and yeast' },
+        { word:'BUTTER',      alts:[],                   hint:'Dairy spread made from cream, goes on bread' },
+        { word:'MILK',        alts:[],                   hint:'White liquid produced by mammals to nourish young' },
+      ],
+    },
   },
   {
-    title: 'Ancient Library',
-    blocks: [
-      { pos:[0,0], type:'corner', pts:1, word:'NOVEL',       alts:['NOVELS'],        hint:'Long work of fictional prose published as a bound book' },
-      { pos:[0,4], type:'corner', pts:1, word:'LADDER',      alts:['LADDERS'],       hint:'Climbing frame with rungs, used to reach high shelves' },
-      { pos:[1,1], type:'arm',    pts:3, word:'BOOK',        alts:['BOOKS'],         hint:'Bound set of printed pages containing knowledge or story' },
-      { pos:[1,3], type:'arm',    pts:3, word:'SHELF',       alts:['SHELVES'],       hint:'Flat horizontal surface fixed to a wall for storing items' },
-      { pos:[2,2], type:'center', pts:5, word:'LIBRARY',     alts:['LIBRARIES'],     hint:'Institution where books are collected, stored, and borrowed' },
-      { pos:[3,1], type:'arm',    pts:3, word:'QUIET',       alts:['SILENCE','SILENT','HUSH'], hint:'The absence of noise; calm and still atmosphere' },
-      { pos:[3,3], type:'arm',    pts:3, word:'READ',        alts:['READING'],       hint:'Interpret written or printed text with your eyes' },
-      { pos:[4,0], type:'corner', pts:1, word:'WHISPER',     alts:['WHISPERS'],      hint:'Speak so softly that only someone very close can hear' },
-      { pos:[4,4], type:'corner', pts:1, word:'PAGE',        alts:['PAGES'],         hint:'A single leaf of paper within a book' },
-    ]
+    title: 'Secret Garden',
+    center: { word:'GARDEN',     alts:[],                   hint:'Cultivated outdoor space lovingly tended for plants' },
+    arms: {
+      tl: [
+        { word:'FLOWER',      alts:['FLOWERS'],          hint:'Colourful bloom that attracts bees and butterflies' },
+        { word:'ROSE',        alts:['ROSES'],            hint:'Thorny flowering plant, symbol of love' },
+        { word:'THORN',       alts:['THORNS'],           hint:'Sharp pointed spike on a plant stem' },
+        { word:'BLOOD',       alts:[],                   hint:'Red liquid pumped by the heart — thorns draw it' },
+        { word:'HEART',       alts:['HEARTS'],           hint:'Organ that pumps blood; universal symbol of love' },
+        { word:'LOVE',        alts:[],                   hint:'Deep intense affection for another person' },
+      ],
+      tr: [
+        { word:'TREE',        alts:['TREES'],            hint:'Tall woody perennial with trunk and branches' },
+        { word:'OAK',         alts:['OAK TREE'],         hint:'Mighty long-lived tree that produces acorns' },
+        { word:'ACORN',       alts:['ACORNS'],           hint:'Small nut produced by an oak tree' },
+        { word:'SQUIRREL',    alts:['SQUIRRELS'],        hint:'Bushy-tailed rodent famous for hoarding nuts' },
+        { word:'NUT',         alts:['NUTS'],             hint:'Hard-shelled seed or fruit — squirrels love them' },
+        { word:'CHOCOLATE',   alts:['COCOA'],            hint:'Sweet food made from cacao, often contains nuts' },
+      ],
+      bl: [
+        { word:'RAIN',        alts:[],                   hint:'Water droplets falling from clouds to water the earth' },
+        { word:'CLOUD',       alts:['CLOUDS'],           hint:'Mass of water droplets suspended in the sky' },
+        { word:'SKY',         alts:[],                   hint:'The atmosphere above the Earth' },
+        { word:'BIRD',        alts:['BIRDS'],            hint:'Feathered vertebrate with wings that can fly' },
+        { word:'FEATHER',     alts:['FEATHERS'],         hint:'Light flat structure that covers a bird\'s body' },
+        { word:'PILLOW',      alts:['PILLOWS','CUSHION'],hint:'Soft cushion stuffed with feathers or foam for sleeping' },
+      ],
+      br: [
+        { word:'BEE',         alts:['BEES'],             hint:'Striped insect that pollinates flowers and makes honey' },
+        { word:'HONEY',       alts:[],                   hint:'Sweet golden liquid produced by bees from nectar' },
+        { word:'JAR',         alts:['JARS'],             hint:'Glass container with a wide mouth and a lid' },
+        { word:'GLASS',       alts:[],                   hint:'Hard transparent material; or a drinking vessel' },
+        { word:'WINDOW',      alts:['WINDOWS'],          hint:'Glass-filled opening in a wall that lets in light' },
+        { word:'LIGHT',       alts:['SUNLIGHT'],         hint:'Electromagnetic radiation that makes things visible' },
+      ],
+    },
   },
   {
-    title: 'Wild Animals',
-    blocks: [
-      { pos:[0,0], type:'corner', pts:1, word:'STRIPE',      alts:['STRIPES'],       hint:'Bold contrasting band of colour on a surface or animal coat' },
-      { pos:[0,4], type:'corner', pts:1, word:'MANE',        alts:[],                hint:'Long thick hair around the neck, famously worn by lions' },
-      { pos:[1,1], type:'arm',    pts:3, word:'TIGER',       alts:[],                hint:'Largest wild cat, known for its orange coat and black stripes' },
-      { pos:[1,3], type:'arm',    pts:3, word:'LION',        alts:[],                hint:'Apex predator of the savanna, called the King of the Jungle' },
-      { pos:[2,2], type:'center', pts:5, word:'JUNGLE',      alts:['RAINFOREST'],    hint:'Dense tropical forest teeming with exotic wildlife' },
-      { pos:[3,1], type:'arm',    pts:3, word:'SNAKE',       alts:['SERPENT'],       hint:'Legless reptile that moves by slithering along the ground' },
-      { pos:[3,3], type:'arm',    pts:3, word:'MONKEY',      alts:['MONKEYS','APE'], hint:'Agile primate that swings through tree branches' },
-      { pos:[4,0], type:'corner', pts:1, word:'VENOM',       alts:['POISON'],        hint:'Toxic fluid injected by a bite or sting' },
-      { pos:[4,4], type:'corner', pts:1, word:'BANANA',      alts:['BANANAS'],       hint:'Yellow curved fruit beloved by primates' },
-    ]
+    title: 'Ancient World',
+    center: { word:'EMPIRE',     alts:['KINGDOM'],          hint:'Large realm ruled by a supreme leader' },
+    arms: {
+      tl: [
+        { word:'ROME',        alts:['ROMAN'],            hint:'Ancient city that gave its name to a great empire' },
+        { word:'SENATE',      alts:[],                   hint:'Governing assembly of ancient Rome' },
+        { word:'VOTE',        alts:['VOTING','BALLOT'],  hint:'Express your choice in an election or assembly' },
+        { word:'ELECTION',    alts:['ELECTIONS'],        hint:'Process by which voters choose a leader' },
+        { word:'PRESIDENT',   alts:[],                   hint:'Elected head of a republic or country' },
+        { word:'SPEECH',      alts:['SPEECHES'],         hint:'Formal address delivered to an audience' },
+      ],
+      tr: [
+        { word:'SOLDIER',     alts:['SOLDIERS','WARRIOR'],hint:'Person who fights in an army' },
+        { word:'SHIELD',      alts:['SHIELDS'],          hint:'Protective barrier carried to deflect weapons' },
+        { word:'SWORD',       alts:['SWORDS','BLADE'],   hint:'Long sharp weapon used by soldiers and knights' },
+        { word:'BATTLE',      alts:['WAR','FIGHT'],      hint:'Large-scale armed conflict between forces' },
+        { word:'VICTORY',     alts:['WIN'],              hint:'The outcome of winning a battle or contest' },
+        { word:'TROPHY',      alts:['TROPHIES'],         hint:'Decorative object awarded for winning' },
+      ],
+      bl: [
+        { word:'CAESAR',      alts:['JULIUS CAESAR'],    hint:'Famous Roman general and dictator' },
+        { word:'CROWN',       alts:['CROWNS'],           hint:'Ornamental headpiece worn by rulers' },
+        { word:'KING',        alts:['KINGS','QUEEN'],    hint:'Male monarch who wears a crown' },
+        { word:'THRONE',      alts:['THRONES'],          hint:'Ceremonial chair of a king or queen' },
+        { word:'PALACE',      alts:['PALACES'],          hint:'Grand official residence of a monarch' },
+        { word:'GOLD',        alts:[],                   hint:'Precious yellow metal used in crowns and palaces' },
+      ],
+      br: [
+        { word:'PYRAMID',     alts:['PYRAMIDS'],         hint:'Ancient triangular stone monument of Egypt' },
+        { word:'PHARAOH',     alts:['PHARAOHS'],         hint:'God-king ruler of ancient Egypt' },
+        { word:'EGYPT',       alts:[],                   hint:'African civilisation famous for pyramids and the Nile' },
+        { word:'RIVER',       alts:['RIVERS'],           hint:'Natural stream of water — the Nile is the world\'s longest' },
+        { word:'BOAT',        alts:['BOATS','SHIP'],     hint:'Vessel that travels on water' },
+        { word:'SAIL',        alts:['SAILING'],          hint:'Piece of canvas that catches wind to propel a boat' },
+      ],
+    },
   },
   {
     title: 'Digital World',
-    blocks: [
-      { pos:[0,0], type:'corner', pts:1, word:'MOUSE',       alts:[],                hint:'Small handheld device you move to control a cursor on screen' },
-      { pos:[0,4], type:'corner', pts:1, word:'WIFI',        alts:['WI-FI','WIRELESS'], hint:'Wireless technology that connects devices to the internet' },
-      { pos:[1,1], type:'arm',    pts:3, word:'SCREEN',      alts:['DISPLAY','MONITOR'], hint:'Flat panel that shows visual output from a device' },
-      { pos:[1,3], type:'arm',    pts:3, word:'NETWORK',     alts:[],                hint:'System of interconnected computers sharing data' },
-      { pos:[2,2], type:'center', pts:5, word:'COMPUTER',    alts:['PC','LAPTOP'],   hint:'Electronic device that processes data and runs software' },
-      { pos:[3,1], type:'arm',    pts:3, word:'CODE',        alts:['SOFTWARE','PROGRAM'], hint:'Written instructions that tell a computer what to do' },
-      { pos:[3,3], type:'arm',    pts:3, word:'DATA',        alts:[],                hint:'Raw facts and figures processed or stored digitally' },
-      { pos:[4,0], type:'corner', pts:1, word:'BUG',         alts:['ERROR'],         hint:'Flaw or error in a program that causes unexpected behaviour' },
-      { pos:[4,4], type:'corner', pts:1, word:'DATABASE',    alts:['DB'],            hint:'Organised collection of structured data stored electronically' },
-    ]
+    center: { word:'COMPUTER',   alts:['PC','LAPTOP'],      hint:'Electronic device that processes data and runs software' },
+    arms: {
+      tl: [
+        { word:'SCREEN',      alts:['DISPLAY','MONITOR'],hint:'Flat panel that shows visual output' },
+        { word:'PIXEL',       alts:['PIXELS'],           hint:'Tiny dot of colour — thousands make up a screen image' },
+        { word:'COLOUR',      alts:['COLOR'],            hint:'Property of light perceived by the eye — red, blue, green' },
+        { word:'PAINT',       alts:['PAINTING'],         hint:'Apply colour to a surface using a brush' },
+        { word:'BRUSH',       alts:['PAINTBRUSH'],       hint:'Tool with bristles used to apply paint' },
+        { word:'HAIR',        alts:[],                   hint:'Fine threads that grow from the skin; bristles are made of it' },
+      ],
+      tr: [
+        { word:'CODE',        alts:['SOFTWARE','PROGRAM'],hint:'Written instructions that tell a computer what to do' },
+        { word:'BUG',         alts:['ERROR','GLITCH'],   hint:'Flaw in a program that causes unexpected behaviour' },
+        { word:'INSECT',      alts:['BUG','BUGS'],       hint:'Small six-legged creature — coders borrowed the word' },
+        { word:'WING',        alts:['WINGS'],            hint:'Limb used for flight, found on insects and birds' },
+        { word:'BIRD',        alts:['BIRDS'],            hint:'Feathered creature with wings that flies' },
+        { word:'SONG',        alts:['SONGS','TWEET'],    hint:'A bird sings one; also a short piece of music' },
+      ],
+      bl: [
+        { word:'NETWORK',     alts:[],                   hint:'System of interconnected computers sharing data' },
+        { word:'CLOUD',       alts:['THE CLOUD'],        hint:'Remote servers accessed via the internet — or a rain cloud' },
+        { word:'RAIN',        alts:[],                   hint:'Water droplets falling from clouds' },
+        { word:'UMBRELLA',    alts:['BROLLY'],           hint:'Folding canopy that shields you from rain' },
+        { word:'SHIELD',      alts:[],                   hint:'Protective barrier — an umbrella shields you' },
+        { word:'KNIGHT',      alts:['KNIGHTS'],          hint:'Armoured warrior who carries a shield' },
+      ],
+      br: [
+        { word:'DATA',        alts:[],                   hint:'Raw facts and figures processed or stored digitally' },
+        { word:'NUMBER',      alts:['NUMBERS','DIGIT'],  hint:'Mathematical value — data is made of them' },
+        { word:'ZERO',        alts:['0','NOUGHT'],       hint:'The number nothing; foundation of binary code' },
+        { word:'CIRCLE',      alts:[],                   hint:'A zero is shaped like this perfectly round shape' },
+        { word:'RING',        alts:['RINGS'],            hint:'A circular band — or what a phone does' },
+        { word:'PHONE',       alts:['TELEPHONE','MOBILE'],hint:'Device for voice calls — and so much more' },
+      ],
+    },
   },
 ];
 
-/* ─────────────────────────── GAME STATE ─────────────────────────── */
+/* ═══════════════════════════ GAME STATE ═══════════════════════════ */
 let numPlayers   = 1;
 let curPlayer    = 0;
 let scores       = [0, 0];
 let puzzleSeq    = [];
 let curPuzzleIdx = 0;
-let blockState   = [];   // array of {revealed, ...block}
-let pendingBlock = null; // index into blockState of block being guessed
+let blockState   = [];
+let pendingBlock = null;
 let gameActive   = false;
 
-/* ─────────────────────────── HELPERS ────────────────────────────── */
-function $(id) { return document.getElementById(id); }
+/* ═══════════════════════════ HELPERS ══════════════════════════════ */
+const $ = id => document.getElementById(id);
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $(id).classList.add('active');
 }
 
-function normalize(s) {
-  return s.trim().toUpperCase().replace(/\s+/g, ' ');
-}
+function normalize(s) { return s.trim().toUpperCase().replace(/\s+/g, ' '); }
 
 function isCorrect(input, block) {
   const n = normalize(input);
   if (n === normalize(block.word)) return true;
-  return block.alts.some(a => normalize(a) === n);
+  return (block.alts || []).some(a => normalize(a) === n);
 }
 
 function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    [a[i], a[j]] = [a[j], a[i]];
   }
-  return arr;
+  return a;
 }
 
-/* ─────────────────────────── START ──────────────────────────────── */
+/* Compute grid row/col (1-indexed CSS) from arm + distance */
+function gridPos(arm, dist) {
+  if (arm === 'center') return [7, 7];
+  const dr = arm[0] === 't' ? -1 : 1;
+  const dc = arm[1] === 'l' ? -1 : 1;
+  return [7 + dr * dist, 7 + dc * dist];
+}
+
+function buildBlocks(puzzle) {
+  const out = [];
+  out.push({
+    word: puzzle.center.word, hint: puzzle.center.hint, alts: puzzle.center.alts,
+    arm: 'center', dist: 0, pts: 7,
+    row: 7, col: 7, revealed: false,
+  });
+  const dirs = ['tl','tr','bl','br'];
+  dirs.forEach(arm => {
+    puzzle.arms[arm].forEach((w, i) => {
+      const d = i + 1;
+      const [row, col] = gridPos(arm, d);
+      out.push({
+        word: w.word, hint: w.hint, alts: w.alts,
+        arm, dist: d, pts: Math.max(1, 7 - d),
+        row, col, revealed: false,
+      });
+    });
+  });
+  return out;
+}
+
+function getNeighbors(idx) {
+  const b = blockState[idx];
+  return blockState.map((o, i) => {
+    if (i === idx) return null;
+    if (b.arm === 'center') return o.dist === 1 ? i : null;
+    if (o.arm === 'center' && b.dist === 1) return i;
+    if (o.arm === b.arm && Math.abs(o.dist - b.dist) === 1) return i;
+    return null;
+  }).filter(i => i !== null);
+}
+
+/* ═══════════════════════════ START ════════════════════════════════ */
 function setPlayers(n) {
   numPlayers = n;
   $('btn1').classList.toggle('on', n === 1);
@@ -635,23 +757,21 @@ function setPlayers(n) {
 }
 
 function startGame() {
-  scores       = [0, 0];
-  curPlayer    = 0;
+  scores = [0, 0];
+  curPlayer = 0;
   curPuzzleIdx = 0;
-  puzzleSeq    = shuffle([...Array(PUZZLES.length).keys()]);
-  gameActive   = true;
+  puzzleSeq = shuffle([...Array(PUZZLES.length).keys()]);
+  gameActive = true;
   showScreen('game-screen');
   loadPuzzle();
 }
 
-function backToStart() {
-  showScreen('start-screen');
-}
+function backToStart() { showScreen('start-screen'); }
 
-/* ─────────────────────────── PUZZLE ─────────────────────────────── */
+/* ═══════════════════════════ PUZZLE ═══════════════════════════════ */
 function loadPuzzle() {
   const puzzle = PUZZLES[puzzleSeq[curPuzzleIdx]];
-  blockState   = puzzle.blocks.map(b => ({ ...b, revealed: false }));
+  blockState = buildBlocks(puzzle);
 
   const grid = $('grid');
   grid.innerHTML = '';
@@ -660,17 +780,15 @@ function loadPuzzle() {
     const el = document.createElement('div');
     el.className = 'block';
     el.dataset.idx = idx;
-    el.style.gridRow    = b.pos[0] + 1;
-    el.style.gridColumn = b.pos[1] + 1;
-
-    const typeLabel = b.type === 'center' ? 'Master' : b.type === 'arm' ? 'Arm' : 'Corner';
+    el.style.gridRow    = b.row;
+    el.style.gridColumn = b.col;
     el.innerHTML = `<div class="q-mark">?</div><div class="pt-tag">${b.pts}pt${b.pts>1?'s':''}</div>`;
-    el.title = `${typeLabel} — ${b.pts} point${b.pts>1?'s':''}`;
     el.addEventListener('click', () => onBlockClick(idx));
     grid.appendChild(el);
   });
 
-  $('counter').textContent = `Puzzle ${curPuzzleIdx + 1} of ${PUZZLES.length}`;
+  $('counter').textContent = `Puzzle ${curPuzzleIdx + 1} / ${PUZZLES.length}  ·  ${puzzle.title}`;
+  updateNeighborHighlights();
   renderScoreboard();
 }
 
@@ -693,7 +811,20 @@ function renderScoreboard() {
   }
 }
 
-/* ─────────────────────────── BLOCK CLICK ────────────────────────── */
+function updateNeighborHighlights() {
+  document.querySelectorAll('.block.neighbor').forEach(el => el.classList.remove('neighbor'));
+  blockState.forEach((b, idx) => {
+    if (!b.revealed) return;
+    getNeighbors(idx).forEach(ni => {
+      if (!blockState[ni].revealed) {
+        const el = $('grid').querySelector(`[data-idx="${ni}"]`);
+        if (el) el.classList.add('neighbor');
+      }
+    });
+  });
+}
+
+/* ═══════════════════════════ BLOCK CLICK ══════════════════════════ */
 function onBlockClick(idx) {
   if (!gameActive) return;
   const b = blockState[idx];
@@ -701,14 +832,22 @@ function onBlockClick(idx) {
 
   pendingBlock = idx;
 
-  const typeLabel = b.type === 'center' ? 'Master Word — 5 pts'
-                  : b.type === 'arm'    ? 'Arm Word — 3 pts'
-                  :                       'Corner Word — 1 pt';
+  const typeLabel = b.dist === 0 ? 'Center — 7 pts'
+                  : `Chain position ${b.dist} — ${b.pts} pt${b.pts>1?'s':''}`;
 
   $('m-who').textContent  = numPlayers === 2 ? `Player ${curPlayer + 1}'s turn` : '';
   $('m-hint').textContent = b.hint;
   $('m-pts').textContent  = typeLabel;
-  $('m-input').value      = '';
+
+  // Show connected revealed neighbours
+  const revNeighbors = getNeighbors(idx)
+    .filter(ni => blockState[ni].revealed)
+    .map(ni => blockState[ni].word);
+  $('m-conn').textContent = revNeighbors.length
+    ? `Connected to: ${revNeighbors.join(', ')}`
+    : '';
+
+  $('m-input').value = '';
   $('modal').classList.add('open');
   setTimeout(() => $('m-input').focus(), 80);
 }
@@ -718,7 +857,7 @@ function closeModal() {
   pendingBlock = null;
 }
 
-/* ─────────────────────────── SUBMIT GUESS ───────────────────────── */
+/* ═══════════════════════════ SUBMIT ═══════════════════════════════ */
 function submitGuess() {
   if (pendingBlock === null) return;
   const b   = blockState[pendingBlock];
@@ -726,51 +865,49 @@ function submitGuess() {
   closeModal();
 
   if (isCorrect(val, b)) {
-    /* Correct answer */
     b.revealed = true;
     scores[curPlayer] += b.pts;
 
     const el = $('grid').querySelector(`[data-idx="${pendingBlock}"]`);
-    el.classList.remove();
-    el.classList.add('block', 'revealed', `rev-${b.type}`);
-    el.innerHTML = `<div class="rev-word">${b.word}</div><div class="rev-pts">+${b.pts} pt${b.pts>1?'s':''}</div>`;
+    el.classList.remove('neighbor');
+    el.className = `block revealed rev-${b.dist}`;
+    el.innerHTML = `<div class="rev-word">${b.word}</div><div class="rev-pts">+${b.pts}pt${b.pts>1?'s':''}</div>`;
 
     flash(true, `+${b.pts}`);
 
     if (numPlayers === 2) curPlayer = 1 - curPlayer;
+    updateNeighborHighlights();
     renderScoreboard();
 
-    /* Check puzzle complete */
     setTimeout(() => {
       if (blockState.every(x => x.revealed)) {
         curPuzzleIdx++;
-        if (curPuzzleIdx >= PUZZLES.length) {
-          endGame(true);
-        } else {
-          loadPuzzle();
-        }
+        if (curPuzzleIdx >= PUZZLES.length) { endGame(true); }
+        else { loadPuzzle(); }
       }
     }, 700);
 
   } else {
-    /* Wrong answer — game over */
     flash(false, 'Wrong!');
     gameActive = false;
     setTimeout(() => endGame(false), 1100);
   }
 }
 
-/* ─────────────────────────── FLASH ──────────────────────────────── */
+/* ═══════════════════════════ FLASH ════════════════════════════════ */
 function flash(ok, text) {
   const f = $('flash');
-  const b = $('flash-badge');
-  b.className = `flash-badge ${ok ? 'ok' : 'bad'}`;
-  b.textContent = text;
-  f.classList.add('show');
-  setTimeout(() => f.classList.remove('show'), 800);
+  // Clone and replace to force animation restart
+  const badge = document.createElement('div');
+  badge.className = `flash-badge ${ok ? 'ok' : 'bad'}`;
+  badge.textContent = text;
+  f.innerHTML = '';
+  f.appendChild(badge);
+  f.style.display = 'flex';
+  setTimeout(() => { f.style.display = 'none'; }, 900);
 }
 
-/* ─────────────────────────── GAME OVER ──────────────────────────── */
+/* ═══════════════════════════ GAME OVER ════════════════════════════ */
 function endGame(completed) {
   showScreen('gameover-screen');
   $('go-title').textContent = completed ? 'All Done!' : 'Game Over';
@@ -782,19 +919,19 @@ function endGame(completed) {
         <div class="go-pts">${scores[0]}</div>
       </div>`;
     $('go-msg').textContent = completed
-      ? `You solved every puzzle and scored ${scores[0]} points. Brilliant!`
-      : `Wrong answer! You scored ${scores[0]} point${scores[0]!==1?'s':''} before the game ended.`;
+      ? `You solved every puzzle — ${scores[0]} points total!`
+      : `Wrong answer! You scored ${scores[0]} point${scores[0]!==1?'s':''}.`;
   } else {
-    const winner = scores[0] > scores[1] ? 0 : scores[1] > scores[0] ? 1 : -1;
+    const w = scores[0] > scores[1] ? 0 : scores[1] > scores[0] ? 1 : -1;
     $('go-cards').innerHTML = [0,1].map(i => `
-      <div class="go-card ${winner===i?'winner':''}">
-        ${winner===i?'<div class="win-badge">Winner!</div>':''}
+      <div class="go-card ${w===i?'winner':''}">
+        ${w===i?'<div class="win-badge">Winner!</div>':''}
         <div class="go-name">Player ${i+1}</div>
         <div class="go-pts">${scores[i]}</div>
       </div>`).join('');
-    $('go-msg').textContent = winner === -1
-      ? "It's a tie! Well played by both."
-      : `Player ${winner+1} wins with ${scores[winner]} points!`;
+    $('go-msg').textContent = w === -1
+      ? "It's a tie! Well played both."
+      : `Player ${w+1} wins with ${scores[w]} points!`;
   }
 }
 </script>
