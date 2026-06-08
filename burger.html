@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Burger Stacker 🍔</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#4EC5E0;overflow:hidden;font-family:'Arial Rounded MT Bold',Arial,sans-serif;-webkit-user-select:none;user-select:none;touch-action:none}
+canvas{display:block}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(78,197,224,.93);z-index:20}
+.screen.hidden{display:none}
+.screen-icon{font-size:clamp(60px,18vw,90px);line-height:1}
+.screen h1{font-size:clamp(30px,9vw,50px);color:#8B4513;text-shadow:3px 3px 0 #FFD700,5px 5px 8px rgba(0,0,0,.2);text-align:center;margin-top:8px}
+.screen p{font-size:clamp(12px,3.5vw,16px);color:#333;text-align:center;margin-top:10px;line-height:1.6;padding:0 24px}
+.card{background:rgba(255,255,255,.82);border-radius:18px;padding:10px 24px;margin-top:14px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.card .big{font-size:clamp(22px,7vw,34px);color:#FF6B35;font-weight:bold}
+.card .sub{font-size:12px;color:#999;margin-top:2px}
+.cards-row{display:flex;gap:12px;margin-top:14px}
+.btn{margin-top:18px;background:linear-gradient(170deg,#FF7070,#FF3333);color:#fff;border:none;border-radius:30px;padding:13px 46px;font-size:clamp(18px,5vw,24px);font-weight:bold;letter-spacing:1px;cursor:pointer;box-shadow:0 5px 0 #AA1111,0 8px 16px rgba(0,0,0,.25);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #AA1111,0 4px 8px rgba(0,0,0,.2)}
+#questBubble{position:fixed;top:78px;right:10px;background:rgba(255,255,255,.93);border:2.5px solid #FFD700;border-radius:14px;padding:7px 11px;font-size:12px;line-height:1.5;max-width:148px;z-index:10;box-shadow:0 3px 12px rgba(0,0,0,.15);display:none}
+#questBubble .qt{font-weight:bold;color:#FF6B35;font-size:10px;letter-spacing:.5px;text-transform:uppercase}
+#questBubble .qn{font-weight:bold;color:#333;font-size:12px}
+#questBubble .qe{font-size:20px;margin-top:2px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="questBubble">
+  <div class="qt">⭐ Quest!</div>
+  <div class="qn" id="questName"></div>
+  <div class="qe" id="questEmojis"></div>
+</div>
+
+<div id="startScreen" class="screen">
+  <div class="screen-icon">🍔</div>
+  <h1>Burger Stacker</h1>
+  <p>Move to catch falling ingredients!<br>
+     Dodge pizza 🍕 coffee ☕ &amp; donuts 🍩!<br>
+     5 bad items = game over 💀<br>
+     Watch for hungry birds 🐦!</p>
+  <button class="btn" id="startBtn">Let's Stack!</button>
+</div>
+
+<div id="gameOverScreen" class="screen hidden">
+  <div class="screen-icon">😱</div>
+  <h1>Game Over!</h1>
+  <p>Too many bad items spoiled your burger!</p>
+  <div class="card"><div class="big" id="goScore">0</div><div class="sub">Points</div></div>
+  <div class="cards-row">
+    <div class="card"><div class="big" id="goHeight">0m</div><div class="sub">Height</div></div>
+    <div class="card"><div class="big" id="goLayers">0</div><div class="sub">Layers</div></div>
+  </div>
+  <button class="btn" id="restartBtn">Play Again!</button>
+</div>
+
+<script>
+'use strict';
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W = 0, H = 0;
+function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+// ── Data ────────────────────────────────────────────────────
+const ITEMS = {
+  cheese:  {label:'Cheese',  emoji:'🧀', pts:10,  bad:false},
+  onion:   {label:'Onion',   emoji:'🧅', pts:5,   bad:false},
+  patty:   {label:'Patty',   emoji:'🥩', pts:25,  bad:false},
+  lettuce: {label:'Lettuce', emoji:'🥬', pts:8,   bad:false},
+  tomato:  {label:'Tomato',  emoji:'🍅', pts:10,  bad:false},
+  pickles: {label:'Pickles', emoji:'🥒', pts:6,   bad:false},
+  avocado: {label:'Avocado', emoji:'🥑', pts:15,  bad:false},
+  egg:     {label:'Egg',     emoji:'🍳', pts:12,  bad:false},
+  pizza:   {label:'Pizza',   emoji:'🍕', pts:-20, bad:true},
+  coffee:  {label:'Coffee',  emoji:'☕', pts:-15, bad:true},
+  donut:   {label:'Donut',   emoji:'🍩', pts:-10, bad:true},
+  taco:    {label:'Taco',    emoji:'🌮', pts:-12, bad:true},
+  hotdog:  {label:'Hot Dog', emoji:'🌭', pts:-8,  bad:true},
+};
+const GOOD = ['cheese','onion','patty','lettuce','tomato','pickles','avocado','egg'];
+const BAD  = ['pizza','coffee','donut','taco','hotdog'];
+
+const QUESTS = [
+  {name:'Classic!',      stack:['patty','cheese','lettuce']},
+  {name:'Veggie Power',  stack:['lettuce','avocado','tomato']},
+  {name:'Big Breakfast', stack:['egg','cheese','patty']},
+  {name:'Garden Stack',  stack:['lettuce','tomato','avocado']},
+  {name:'The Works',     stack:['patty','cheese','tomato','pickles']},
+  {name:'Avocado Dream', stack:['avocado','egg','lettuce']},
+  {name:'Double Smash',  stack:['patty','cheese','patty','cheese']},
+  {name:'Green Machine', stack:['lettuce','avocado','pickles']},
+  {name:'Pickle Party',  stack:['pickles','patty','pickles']},
+  {name:'Egg Benedict',  stack:['egg','avocado','tomato']},
+];
+
+// ── Constants ────────────────────────────────────────────────
+const LAYER_H  = 36;
+const BUN_W    = 90;
+const ITEM_R   = 34;
+const CAM_START = 8; // layers before camera scrolls
+
+// ── State ────────────────────────────────────────────────────
+let G = {};
+function initGame(){
+  G = {
+    active:false, score:0, badCount:0,
+    stack:[], stackX:W/2, targetX:W/2,
+    sway:0, swayV:0,
+    camY:0, targetCamY:0,
+    falling:[], clouds:[], birds:[], particles:[], floaters:[],
+    quest:null, questActive:false, questCD:10,
+    spawnTimer:1.5, birdTimer:rand(14,22), time:0,
+  };
+  for(let i=0;i<6;i++) G.clouds.push(makeCloud(true));
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function rand(a,b){return a+Math.random()*(b-a);}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+function bunWorldY(){ return H - 88; }
+function stackTopWorldY(){ return bunWorldY() - G.stack.length * LAYER_H; }
+function worldToScreenY(wy){ return wy - G.camY; }
+function screenTopWorldY(){ return G.camY - ITEM_R; }
+
+// ── Clouds (screen-space) ─────────────────────────────────────
+function makeCloud(init){
+  const w = rand(90,200);
+  return {x: init ? rand(0,W) : -w-10, y: rand(H*.04, H*.3), w, h:w*.44, spd:rand(18,44), a:rand(.7,1)};
+}
+function drawCloud(c){
+  ctx.save();
+  ctx.globalAlpha = c.a;
+  ctx.fillStyle = '#fff';
+  ctx.shadowColor = 'rgba(150,210,240,.4)';
+  ctx.shadowBlur = 14;
+  ctx.beginPath();
+  ctx.ellipse(c.x+c.w*.5, c.y+c.h*.7, c.w*.44, c.h*.38, 0, 0, Math.PI*2);
+  ctx.ellipse(c.x+c.w*.28, c.y+c.h*.55, c.w*.28, c.h*.42, 0, 0, Math.PI*2);
+  ctx.ellipse(c.x+c.w*.68, c.y+c.h*.5,  c.w*.26, c.h*.38, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+}
+
+// ── Birds (screen-space) ──────────────────────────────────────
+function makeBird(){
+  const left = Math.random()<.5;
+  return {x:left?-80:W+80, y:rand(H*.1,H*.4), spd:left?rand(180,320):-rand(180,320), dir:left?1:-1, wing:0, stolen:false};
+}
+function drawBird(b){
+  const sz=20;
+  ctx.save();
+  ctx.translate(b.x,b.y);
+  if(b.dir<0) ctx.scale(-1,1);
+  ctx.fillStyle='#556';
+  ctx.beginPath(); ctx.ellipse(0,0,sz*.6,sz*.34,0,0,Math.PI*2); ctx.fill();
+  const wa=Math.sin(b.wing)*.7;
+  ctx.fillStyle='#445';
+  ctx.beginPath();
+  ctx.moveTo(-sz*.3,0); ctx.quadraticCurveTo(0,-sz*wa,sz*.3,0); ctx.quadraticCurveTo(0,sz*.3,-sz*.3,0);
+  ctx.fill();
+  ctx.fillStyle='#EEA020';
+  ctx.beginPath(); ctx.moveTo(sz*.54,-4); ctx.lineTo(sz*.86,0); ctx.lineTo(sz*.54,4); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(sz*.28,-4,4,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(sz*.3,-4,2.5,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+// ── Falling items (world-space) ───────────────────────────────
+function makeFalling(){
+  const bad = Math.random()<.22;
+  const key = bad ? pick(BAD) : pick(GOOD);
+  return {key, x:rand(ITEM_R+10,W-ITEM_R-10), y:screenTopWorldY(), vy:rand(110,195), vx:rand(-28,28), rot:0, rotV:rand(-2.5,2.5)};
+}
+function drawFallingWorld(it){
+  const sy = worldToScreenY(it.y);
+  ctx.save();
+  ctx.translate(it.x, sy);
+  ctx.rotate(it.rot);
+  ctx.font='54px serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.shadowColor='rgba(0,0,0,.22)'; ctx.shadowBlur=8; ctx.shadowOffsetY=5;
+  ctx.fillText(ITEMS[it.key].emoji,0,0);
+  ctx.restore();
+}
+
+// ── Burger stack (world-space) ────────────────────────────────
+function drawStack(){
+  const cx = G.stackX;
+  const by = worldToScreenY(bunWorldY());
+  const n  = G.stack.length;
+  ctx.save();
+  ctx.translate(cx, by);
+  drawBun();
+  for(let i=0;i<n;i++){
+    const sy2 = -(i+1)*LAYER_H;
+    const sw  = G.sway * (i/Math.max(n,1)) * 20;
+    ctx.save();
+    ctx.translate(sw, 0);
+    ctx.font=`${LAYER_H+4}px serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor='rgba(0,0,0,.15)'; ctx.shadowBlur=4;
+    ctx.fillText(ITEMS[G.stack[i]].emoji, 0, sy2-LAYER_H*.12);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+function drawBun(){
+  const w=BUN_W, hh=22;
+  const g2=ctx.createRadialGradient(0,-hh*.4,2,0,-hh*.4,w);
+  g2.addColorStop(0,'#F9C74F'); g2.addColorStop(1,'#E07B39');
+  ctx.fillStyle=g2;
+  ctx.shadowColor='rgba(0,0,0,.2)'; ctx.shadowBlur=6; ctx.shadowOffsetY=3;
+  ctx.beginPath(); ctx.ellipse(0,-hh*.3,w,hh*.75,0,0,Math.PI*2); ctx.fill();
+  ctx.shadowColor='transparent';
+  ctx.fillStyle='#FFF0AA';
+  for(const [sx,sy2,a] of [[-22,-hh*.62,.3],[0,-hh*.78,0],[22,-hh*.62,-.3],[-11,-hh*.46,.5],[11,-hh*.44,-.4]]){
+    ctx.save(); ctx.translate(sx,sy2); ctx.rotate(a);
+    ctx.beginPath(); ctx.ellipse(0,0,3.5,7,0,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ── Particles & floaters ──────────────────────────────────────
+function burst(sx,sy2,col,n=8){
+  for(let i=0;i<n;i++){
+    const a=(i/n)*Math.PI*2, sp=rand(80,200);
+    G.particles.push({x:sx,y:sy2,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,col,sz:rand(3,10)});
+  }
+}
+function floater(sx,sy2,text,col){
+  G.floaters.push({x:sx,y:sy2,text,col,life:1,vy:-75});
+}
+
+// ── Quest ─────────────────────────────────────────────────────
+function pickQuest(){
+  G.quest={...pick(QUESTS)};
+  G.questActive=true;
+  document.getElementById('questBubble').style.display='block';
+  document.getElementById('questName').textContent=G.quest.name;
+  document.getElementById('questEmojis').textContent=G.quest.stack.map(k=>ITEMS[k].emoji).join('→');
+}
+function checkQuest(){
+  if(!G.quest||!G.questActive) return;
+  const q=G.quest.stack, s=G.stack;
+  if(s.length<q.length) return;
+  if(s.slice(s.length-q.length).join(',')!==q.join(',')) return;
+  const pts=q.reduce((t,k)=>t+ITEMS[k].pts,0)*10;
+  G.score+=pts;
+  const stx=worldToScreenY(stackTopWorldY());
+  burst(G.stackX,stx,'#FFD700',22);
+  floater(G.stackX,stx-40,`⭐ +${pts} QUEST!`,'#CC8800');
+  G.questActive=false; G.quest=null; G.questCD=30;
+  document.getElementById('questBubble').style.display='none';
+}
+
+// ── Update ────────────────────────────────────────────────────
+function update(dt){
+  if(!G.active) return;
+  G.time+=dt;
+
+  // Stack X movement
+  const dx=G.targetX-G.stackX;
+  G.stackX+=dx*9*dt;
+  G.stackX=Math.max(60,Math.min(W-60,G.stackX));
+  // Sway
+  const n=G.stack.length;
+  const stiff=4/Math.max(1,n*.12+1);
+  G.swayV+=(-G.sway*stiff)*dt;
+  G.swayV*=1-3.5*dt;
+  G.sway+=G.swayV;
+  G.swayV+=dx*.006;
+
+  // Camera (smooth, scrolls up when stack gets tall)
+  const tCam=Math.max(0,(n-CAM_START)*LAYER_H);
+  G.camY+=(tCam-G.camY)*3.5*dt;
+
+  // Clouds
+  for(const c of G.clouds){
+    c.x+=c.spd*dt;
+    if(c.x>W+c.w+20) Object.assign(c,makeCloud(false));
+  }
+
+  // Spawn falling items
+  G.spawnTimer-=dt;
+  if(G.spawnTimer<=0){
+    G.falling.push(makeFalling());
+    G.spawnTimer=Math.max(.65,2.2-G.time*.012);
+  }
+
+  // Update falling items & catch detection
+  const catchWorldY = stackTopWorldY();
+  const catchScreenY = worldToScreenY(catchWorldY);
+  for(let i=G.falling.length-1;i>=0;i--){
+    const it=G.falling[i];
+    it.y+=it.vy*dt; it.x+=it.vx*dt; it.rot+=it.rotV*dt;
+    const iSy=worldToScreenY(it.y);
+    if(iSy>=catchScreenY-10 && iSy<=catchScreenY+50){
+      if(Math.abs(it.x-G.stackX)<BUN_W*1.15){
+        const info=ITEMS[it.key];
+        G.falling.splice(i,1);
+        if(info.bad){
+          G.score=Math.max(0,G.score+info.pts);
+          G.badCount++;
+          burst(it.x,iSy,'#FF5555',7);
+          floater(it.x,iSy,`${info.pts}`,'#CC1111');
+          G.swayV+=rand(-4,4);
+          if(G.badCount>=5){endGame();return;}
+        } else {
+          G.stack.push(it.key);
+          G.score+=info.pts;
+          burst(it.x,iSy,'#88EE88',5);
+          floater(it.x,iSy-10,`+${info.pts}`,'#118811');
+          checkQuest();
+        }
+        continue;
+      }
+    }
+    const sy2=worldToScreenY(it.y);
+    if(sy2>H+70||it.x<-80||it.x>W+80) G.falling.splice(i,1);
+  }
+
+  // Birds (screen-space Y, world-space stolen check)
+  G.birdTimer-=dt;
+  if(G.birdTimer<=0){G.birds.push(makeBird()); G.birdTimer=rand(12,24);}
+  for(let i=G.birds.length-1;i>=0;i--){
+    const b=G.birds[i];
+    b.x+=b.spd*dt; b.wing+=7*dt;
+    if(!b.stolen && Math.abs(b.x-G.stackX)<75){
+      const stackTopSy=worldToScreenY(stackTopWorldY());
+      if(Math.abs(b.y-stackTopSy)<90){
+        b.stolen=true;
+        const took=Math.min(2,G.stack.length);
+        G.stack.splice(-took,took);
+        floater(b.x,b.y,`🐦 Stole ${took}!`,'#666');
+        burst(G.stackX,worldToScreenY(stackTopWorldY()+LAYER_H),'#ccc',6);
+      }
+    }
+    if(b.x<-160||b.x>W+160) G.birds.splice(i,1);
+  }
+
+  // Particles & floaters (screen-space)
+  for(let i=G.particles.length-1;i>=0;i--){
+    const p=G.particles[i];
+    p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=220*dt; p.life-=dt*2.2;
+    if(p.life<=0) G.particles.splice(i,1);
+  }
+  for(let i=G.floaters.length-1;i>=0;i--){
+    const f=G.floaters[i];
+    f.y+=f.vy*dt; f.life-=dt*1.4;
+    if(f.life<=0) G.floaters.splice(i,1);
+  }
+
+  // Quest cooldown
+  if(!G.questActive){G.questCD-=dt; if(G.questCD<=0) pickQuest();}
+}
+
+// ── Render ────────────────────────────────────────────────────
+function render(){
+  // Sky
+  const sky=ctx.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,'#3AB8DC'); sky.addColorStop(.65,'#87CEEB'); sky.addColorStop(1,'#C2E8F5');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+
+  // Clouds (screen-space, no camera)
+  for(const c of G.clouds) drawCloud(c);
+
+  // Ground (world-space)
+  const groundSY=worldToScreenY(H-38);
+  if(groundSY<H+20){
+    ctx.fillStyle='#5DB85D'; ctx.fillRect(0,Math.max(0,groundSY),W,H-Math.max(0,groundSY)+40);
+    ctx.fillStyle='#45A045'; ctx.fillRect(0,Math.max(0,groundSY),W,8);
+  }
+
+  if(G.active){
+    // Plate (world-space)
+    const plateSY=worldToScreenY(bunWorldY()+8);
+    if(plateSY<H+20){
+      ctx.fillStyle='rgba(0,0,0,.1)';
+      ctx.beginPath(); ctx.ellipse(G.stackX,plateSY+8,BUN_W+12,9,0,0,Math.PI*2); ctx.fill();
+      const pg=ctx.createRadialGradient(G.stackX,plateSY-4,2,G.stackX,plateSY,BUN_W+14);
+      pg.addColorStop(0,'#f9f9f9'); pg.addColorStop(1,'#d5d5d5');
+      ctx.fillStyle=pg;
+      ctx.beginPath(); ctx.ellipse(G.stackX,plateSY,BUN_W+14,11,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#bbb'; ctx.lineWidth=2; ctx.stroke();
+    }
+    // Stack
+    drawStack();
+  }
+
+  // Falling items (world-space)
+  for(const it of G.falling) drawFallingWorld(it);
+
+  // Birds (screen-space)
+  for(const b of G.birds) drawBird(b);
+
+  // Particles (screen-space)
+  for(const p of G.particles){
+    ctx.save(); ctx.globalAlpha=Math.max(0,p.life);
+    ctx.fillStyle=p.col;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.sz,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  // Floaters (screen-space)
+  ctx.textAlign='center';
+  for(const f of G.floaters){
+    ctx.save(); ctx.globalAlpha=Math.max(0,f.life);
+    ctx.font='bold 22px Arial';
+    ctx.strokeStyle='rgba(0,0,0,.28)'; ctx.lineWidth=3;
+    ctx.strokeText(f.text,f.x,f.y);
+    ctx.fillStyle=f.col; ctx.fillText(f.text,f.x,f.y);
+    ctx.restore();
+  }
+
+  if(G.active) drawHUD();
+}
+
+// ── HUD ───────────────────────────────────────────────────────
+function roundBox(x,y,w,h,r){
+  ctx.save();
+  ctx.fillStyle='rgba(255,255,255,.87)';
+  ctx.shadowColor='rgba(0,0,0,.08)'; ctx.shadowBlur=10;
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+function drawHUD(){
+  const pad=10, bh=56, r=12;
+  // Score
+  roundBox(pad,pad,122,bh,r);
+  ctx.fillStyle='#777'; ctx.font='bold 11px Arial'; ctx.textAlign='left';
+  ctx.fillText('SCORE',pad+10,pad+16);
+  ctx.fillStyle='#E65000'; ctx.font='bold 26px Arial';
+  ctx.fillText(G.score,pad+10,pad+46);
+  // Height
+  const hm=(G.stack.length*.02).toFixed(2);
+  roundBox(W/2-62,pad,124,bh,r);
+  ctx.fillStyle='#777'; ctx.font='bold 11px Arial'; ctx.textAlign='center';
+  ctx.fillText('HEIGHT',W/2,pad+16);
+  ctx.fillStyle='#1A6FA0'; ctx.font='bold 24px Arial';
+  ctx.fillText(`${hm}m`,W/2,pad+46);
+  // Bad count
+  roundBox(W-135-pad,pad,135,bh,r);
+  ctx.fillStyle='#777'; ctx.font='bold 11px Arial'; ctx.textAlign='center';
+  ctx.fillText('BAD ITEMS',W-67-pad,pad+16);
+  ctx.font='17px serif';
+  ctx.fillStyle='#333';
+  ctx.fillText('💀'.repeat(G.badCount)+'⚪'.repeat(5-G.badCount),W-67-pad,pad+46);
+  // Quest cooldown hint
+  if(!G.questActive&&G.quest===null&&G.questCD>0){
+    ctx.fillStyle='rgba(40,40,40,.5)'; ctx.font='12px Arial'; ctx.textAlign='right';
+    ctx.fillText(`⭐ quest in ${Math.ceil(G.questCD)}s`,W-pad,H*.52);
+  }
+}
+
+// ── Game flow ─────────────────────────────────────────────────
+function startGame(){
+  initGame(); G.active=true;
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('gameOverScreen').classList.add('hidden');
+  document.getElementById('questBubble').style.display='none';
+}
+function endGame(){
+  G.active=false;
+  document.getElementById('questBubble').style.display='none';
+  document.getElementById('goScore').textContent=G.score;
+  document.getElementById('goHeight').textContent=`${(G.stack.length*.02).toFixed(2)}m`;
+  document.getElementById('goLayers').textContent=G.stack.length;
+  document.getElementById('gameOverScreen').classList.remove('hidden');
+}
+document.getElementById('startBtn').addEventListener('click',startGame);
+document.getElementById('restartBtn').addEventListener('click',startGame);
+
+// ── Input ─────────────────────────────────────────────────────
+function setTarget(x){if(G.active) G.targetX=x;}
+canvas.addEventListener('mousemove',e=>setTarget(e.clientX));
+canvas.addEventListener('touchmove',e=>{e.preventDefault();setTarget(e.touches[0].clientX);},{passive:false});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();setTarget(e.touches[0].clientX);},{passive:false});
+
+// ── Loop ──────────────────────────────────────────────────────
+let lastTS = performance.now();
+function loop(ts){
+  const dt=Math.min((ts-lastTS)/1000,.05);
+  lastTS=ts;
+  update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
